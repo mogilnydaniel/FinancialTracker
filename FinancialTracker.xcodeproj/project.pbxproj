@@ -14,19 +14,11 @@
 			remoteGlobalIDString = C095C7DD2DF5F37D002953F0;
 			remoteInfo = FinancialTracker;
 		};
-		C095C7F62DF5F37E002953F0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C095C7D62DF5F37D002953F0 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C095C7DD2DF5F37D002953F0;
-			remoteInfo = FinancialTracker;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		C095C7DE2DF5F37D002953F0 /* FinancialTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FinancialTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C095C7EB2DF5F37E002953F0 /* FinancialTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FinancialTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C095C7F52DF5F37E002953F0 /* FinancialTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FinancialTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -38,11 +30,6 @@
 		C095C7EE2DF5F37E002953F0 /* FinancialTrackerTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FinancialTrackerTests;
-			sourceTree = "<group>";
-		};
-		C095C7F82DF5F37E002953F0 /* FinancialTrackerUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FinancialTrackerUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -62,13 +49,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C095C7F22DF5F37E002953F0 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -77,7 +57,6 @@
 			children = (
 				C095C7E02DF5F37D002953F0 /* FinancialTracker */,
 				C095C7EE2DF5F37E002953F0 /* FinancialTrackerTests */,
-				C095C7F82DF5F37E002953F0 /* FinancialTrackerUITests */,
 				C095C7DF2DF5F37D002953F0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,7 +66,6 @@
 			children = (
 				C095C7DE2DF5F37D002953F0 /* FinancialTracker.app */,
 				C095C7EB2DF5F37E002953F0 /* FinancialTrackerTests.xctest */,
-				C095C7F52DF5F37E002953F0 /* FinancialTrackerUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -140,29 +118,6 @@
 			productReference = C095C7EB2DF5F37E002953F0 /* FinancialTrackerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		C095C7F42DF5F37E002953F0 /* FinancialTrackerUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = C095C8052DF5F37E002953F0 /* Build configuration list for PBXNativeTarget "FinancialTrackerUITests" */;
-			buildPhases = (
-				C095C7F12DF5F37E002953F0 /* Sources */,
-				C095C7F22DF5F37E002953F0 /* Frameworks */,
-				C095C7F32DF5F37E002953F0 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				C095C7F72DF5F37E002953F0 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				C095C7F82DF5F37E002953F0 /* FinancialTrackerUITests */,
-			);
-			name = FinancialTrackerUITests;
-			packageProductDependencies = (
-			);
-			productName = FinancialTrackerUITests;
-			productReference = C095C7F52DF5F37E002953F0 /* FinancialTrackerUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -177,10 +132,6 @@
 						CreatedOnToolsVersion = 16.4;
 					};
 					C095C7EA2DF5F37E002953F0 = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = C095C7DD2DF5F37D002953F0;
-					};
-					C095C7F42DF5F37E002953F0 = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = C095C7DD2DF5F37D002953F0;
 					};
@@ -202,7 +153,6 @@
 			targets = (
 				C095C7DD2DF5F37D002953F0 /* FinancialTracker */,
 				C095C7EA2DF5F37E002953F0 /* FinancialTrackerTests */,
-				C095C7F42DF5F37E002953F0 /* FinancialTrackerUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -216,13 +166,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		C095C7E92DF5F37E002953F0 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C095C7F32DF5F37E002953F0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -246,13 +189,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C095C7F12DF5F37E002953F0 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -260,11 +196,6 @@
 			isa = PBXTargetDependency;
 			target = C095C7DD2DF5F37D002953F0 /* FinancialTracker */;
 			targetProxy = C095C7EC2DF5F37E002953F0 /* PBXContainerItemProxy */;
-		};
-		C095C7F72DF5F37E002953F0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C095C7DD2DF5F37D002953F0 /* FinancialTracker */;
-			targetProxy = C095C7F62DF5F37E002953F0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -405,6 +336,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -433,6 +365,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -484,40 +417,6 @@
 			};
 			name = Release;
 		};
-		C095C8062DF5F37E002953F0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DV37M5WAH6;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mogilnydaniel.FinancialTrackerUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = FinancialTracker;
-			};
-			name = Debug;
-		};
-		C095C8072DF5F37E002953F0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DV37M5WAH6;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mogilnydaniel.FinancialTrackerUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = FinancialTracker;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -544,15 +443,6 @@
 			buildConfigurations = (
 				C095C8032DF5F37E002953F0 /* Debug */,
 				C095C8042DF5F37E002953F0 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		C095C8052DF5F37E002953F0 /* Build configuration list for PBXNativeTarget "FinancialTrackerUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C095C8062DF5F37E002953F0 /* Debug */,
-				C095C8072DF5F37E002953F0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
