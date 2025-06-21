@@ -4,7 +4,7 @@ import SwiftUI
 struct FinancialTrackerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            LaunchView()
         }
     }
 }
