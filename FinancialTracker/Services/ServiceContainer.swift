@@ -66,14 +66,6 @@ final class DependencyInjector: DependencyInjectorProtocol {
                 categoriesService: self.makeCategoriesService()
             )
         }
-        
-        register(TransactionsListViewModelFactoryProtocol.self) {
-            TransactionsListViewModelFactory(dependencyInjector: self)
-        }
-        
-        register(HistoryViewModelFactoryProtocol.self) {
-            HistoryViewModelFactory(dependencyInjector: self)
-        }
     }
 }
 

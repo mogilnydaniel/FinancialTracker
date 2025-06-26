@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @Environment(\.viewModelFactory) private var viewModelFactory
+    @Environment(\.di) private var di
     
     var body: some View {
         TabView {
@@ -15,7 +15,9 @@ struct MainTabView: View {
                     Label("Доходы", systemImage: "chart.line.uptrend.xyaxis")
                 }
             
-            Text("Счет")
+            NavigationStack {
+                BankAccountView()
+            }
                 .tabItem {
                     Label("Счет", systemImage: "creditcard")
                 }
@@ -30,11 +32,12 @@ struct MainTabView: View {
                     Label("Настройки", systemImage: "gear")
                 }
         }
+        .background(ShakeDetector())
     }
     
     private func transactionsList(for direction: Direction) -> some View {
         TransactionsListView(
-            viewModel: viewModelFactory
+            viewModel: di.transactionsListVMFactory
                 .makeTransactionsListViewModel(for: direction)
         )
     }
