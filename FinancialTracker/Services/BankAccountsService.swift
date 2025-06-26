@@ -26,7 +26,7 @@ actor MockBankAccountsService: BankAccountsServiceProtocol {
     }
     
     func updateBankAccount(_ updatedAccount: BankAccount) async throws -> BankAccount {
-        try await Task.sleep(for: .seconds(0.3))
+        try await Task.sleep(for: .seconds(0.5))
         account = updatedAccount
         return account
     }

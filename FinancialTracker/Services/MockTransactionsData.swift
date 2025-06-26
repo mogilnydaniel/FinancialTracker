@@ -21,7 +21,7 @@ struct MockTransactionsData {
                 accountId: 1,
                 categoryId: 3,
                 amount: -2500.50,
-                transactionDate: now,
+                transactionDate: calendar.date(byAdding: .hour, value: -2, to: now)!,
                 comment: "Продукты в супермаркете",
                 creationDate: now,
                 modificationDate: now
@@ -301,7 +301,7 @@ struct MockTransactionsData {
                 accountId: 1,
                 categoryId: 5,
                 amount: -1450.00,
-                transactionDate: now,
+                transactionDate: calendar.date(byAdding: .day, value: -29, to: now)!,
                 comment: "Спортзал",
                 creationDate: now,
                 modificationDate: now
@@ -331,7 +331,7 @@ struct MockTransactionsData {
                 accountId: 1,
                 categoryId: 4,
                 amount: -1200.00,
-                transactionDate: now,
+                transactionDate: calendar.date(byAdding: .day, value: -62, to: now)!,
                 comment: "Заправка автомобиля",
                 creationDate: now,
                 modificationDate: now
@@ -381,7 +381,7 @@ struct MockTransactionsData {
                 accountId: 1,
                 categoryId: 1,
                 amount: 850.00,
-                transactionDate: now,
+                transactionDate: calendar.date(byAdding: .minute, value: -30, to: now)!,
                 comment: "Консультация",
                 creationDate: now,
                 modificationDate: now

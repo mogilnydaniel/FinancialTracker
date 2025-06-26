@@ -16,6 +16,15 @@ struct BankAccount: Identifiable {
             }
         }
         
+        var symbol: String {
+            switch self {
+            case .rub: return "₽"
+            case .usd: return "$"
+            case .eur: return "€"
+            case .other(let code): return code
+            }
+        }
+        
         init(code: String) {
             switch code.uppercased() {
             case "RUB": self = .rub

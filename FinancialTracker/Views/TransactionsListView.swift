@@ -3,7 +3,7 @@ import SwiftUI
 struct TransactionsListView: View {
     @State var viewModel: TransactionsListViewModel
     
-    @Environment(\.historyViewModelFactory) private var historyViewModelFactory
+    @Environment(\.di) private var di
     
     var body: some View {
         NavigationStack {
@@ -21,7 +21,7 @@ struct TransactionsListView: View {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         NavigationLink {
                             HistoryView(
-                                viewModel: historyViewModelFactory.makeHistoryViewModel(for: viewModel.direction)
+                                viewModel: di.historyVMFactory.makeHistoryViewModel(for: viewModel.direction)
                             )
                         } label: {
                             Image(systemName: "clock")
@@ -91,6 +91,7 @@ struct TransactionsListView: View {
             HStack {
                 Text("ОПЕРАЦИИ")
                 Spacer()
+                
                 Picker("Сортировка", selection: $viewModel.sort) {
                     ForEach(TransactionSortOption.allCases) { option in
                         Text(option.rawValue).tag(option)
