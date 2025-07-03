@@ -22,6 +22,14 @@ final class DIContainer {
         BankAccountViewModelFactory(di: self)
     }()
 
+    lazy var articlesVMFactory: any ArticlesViewModelFactoryProtocol = {
+        ArticlesViewModelFactory(di: self)
+    }()
+
+    lazy var articlesService: any ArticlesServiceProtocol = {
+        MockArticlesService(categoriesService: self.categoriesService)
+    }()
+
     init(
         categoriesService: any CategoriesServiceProtocol,
         bankAccountsService: any BankAccountsServiceProtocol,

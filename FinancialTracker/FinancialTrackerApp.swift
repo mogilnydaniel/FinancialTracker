@@ -1,10 +1,3 @@
-//
-//  FinancialTrackerApp.swift
-//  FinancialTracker
-//
-//  Created by Daniel Mogilny on 6/8/25.
-//
-
 import SwiftUI
 
 @main

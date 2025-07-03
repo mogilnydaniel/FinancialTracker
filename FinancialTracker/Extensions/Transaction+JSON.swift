@@ -43,7 +43,9 @@ extension Transaction {
             "updatedAt": modificationDate.formatted(.iso8601)
         ]
         
-        comment.map { result["comment"] = $0 }
+        if let comment = comment {
+            result["comment"] = comment
+        }
 
         return result
     }

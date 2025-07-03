@@ -146,6 +146,9 @@
 			);
 			mainGroup = C095C7D52DF5F37D002953F0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C00F09AE2E159B59005BFC84 /* XCRemoteSwiftPackageReference "divkit-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C095C7DF2DF5F37D002953F0 /* Products */;
 			projectDirPath = "";
@@ -448,6 +451,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C00F09AE2E159B59005BFC84 /* XCRemoteSwiftPackageReference "divkit-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/divkit/divkit-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 32.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = C095C7D62DF5F37D002953F0 /* Project object */;
 }
