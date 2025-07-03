@@ -22,9 +22,9 @@ struct MainTabView: View {
                     Label("Счет", systemImage: "creditcard")
                 }
             
-            Text("Статьи")
+            ArticlesView()
                 .tabItem {
-                    Label("Статьи", systemImage: "chart.pie")
+                    Label("Статьи", systemImage: "list.bullet.rectangle")
                 }
             
             Text("Настройки")

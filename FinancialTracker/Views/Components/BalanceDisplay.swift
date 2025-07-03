@@ -13,7 +13,9 @@ struct BalanceDisplay: View {
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
                     .focused($focused)
-                    .onChange(of: text) { onTextChange($0) }
+                    .onChange(of: text) { _, newValue in 
+                        onTextChange(newValue) 
+                    }
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .transition(.opacity)
             } else {
