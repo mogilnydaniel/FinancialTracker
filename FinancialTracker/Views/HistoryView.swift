@@ -1,7 +1,22 @@
 import SwiftUI
 
 struct HistoryView: View {
-    @State var viewModel: HistoryViewModel
+    @ObservedObject var viewModel: HistoryViewModel
+    @Environment(\.transactionEditorViewModelFactory) private var editorVMFactory
+    @Environment(\.analysisViewModelFactory) private var analysisVMFactory
+    
+    private enum EditorSheet: Identifiable {
+        case edit(Transaction)
+        
+        var id: String {
+            switch self {
+            case .edit(let transaction):
+                return "edit-\(transaction.id)"
+            }
+        }
+    }
+    
+    @State private var activeSheet: EditorSheet?
     
     @Environment(\.dismiss) private var dismiss
     
@@ -35,9 +50,39 @@ struct HistoryView: View {
                     .disabled(viewModel.isDefaultPeriod)
                     .animation(.easeInOut(duration: 0.2), value: viewModel.isDefaultPeriod)
                 }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        let analysisViewModel = analysisVMFactory.makeAnalysisViewModel(
+                            startDate: viewModel.startDate,
+                            endDate: viewModel.endDate,
+                            direction: viewModel.direction
+                        )
+                        AnalysisViewControllerRepresentable(viewModel: analysisViewModel)
+                            .navigationTitle("Анализ")
+                            .navigationBarTitleDisplayMode(.large)
+                    } label: {
+                        Image(systemName: "document")
+                    }
+                    .tint(.secondaryAccent)
+                }
             }
             .refreshable {
                 await viewModel.refresh()
+            }
+            .sheet(item: $activeSheet) { sheet in
+                switch sheet {
+                case .edit(let transaction):
+                    let editorViewModel = editorVMFactory.makeTransactionEditorViewModel(for: .edit(transaction))
+                    TransactionEditorView(
+                        viewModel: editorViewModel,
+                        onComplete: {
+                            Task {
+                                await viewModel.refresh()
+                            }
+                        }
+                    )
+                }
             }
     }
     
@@ -118,10 +163,15 @@ struct HistoryView: View {
         if !viewModel.transactions.isEmpty {
             Section {
                 ForEach(viewModel.transactions) { transaction in
-                    TransactionRowView(
-                        transaction: transaction,
-                        category: viewModel.categories[transaction.categoryId]
-                    )
+                    Button {
+                        activeSheet = .edit(transaction)
+                    } label: {
+                        TransactionRowView(
+                            transaction: transaction,
+                            category: viewModel.categories[transaction.categoryId]
+                        )
+                        .tint(.primary)
+                    }
                 }
             } header: {
                 HStack {

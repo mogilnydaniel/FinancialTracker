@@ -58,6 +58,7 @@ extension TransactionsFetcher {
     }
 }
 
+@MainActor
 protocol TransactionsListProtocol: AnyObject {
     var transactions: [Transaction] { get set }
     var categories: [Int: Category] { get set }

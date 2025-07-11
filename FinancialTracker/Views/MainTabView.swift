@@ -35,7 +35,7 @@ struct MainTabView: View {
         .background(ShakeDetector())
     }
     
-    private func transactionsList(for direction: Direction) -> some View {
+    private func transactionsList(for direction: Category.Direction) -> some View {
         TransactionsListView(
             viewModel: di.transactionsListVMFactory
                 .makeTransactionsListViewModel(for: direction)
