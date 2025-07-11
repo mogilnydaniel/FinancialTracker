@@ -4,11 +4,16 @@ protocol TransactionsRepositoryProtocol {
     func getTransactionsSummary(
         from startDate: Date,
         to endDate: Date,
-        direction: Direction
+        direction: Category.Direction
     ) async throws -> TransactionsSummary
     
+    @discardableResult
     func createTransaction(_ request: TransactionRequest) async throws -> Transaction
+    
+    @discardableResult
     func updateTransaction(id: Int, with request: TransactionRequest) async throws -> Transaction
+    
+    @discardableResult
     func deleteTransaction(withId id: Int) async throws -> Transaction
 }
 
@@ -33,11 +38,14 @@ final class TransactionsRepository: TransactionsRepositoryProtocol {
     func getTransactionsSummary(
         from startDate: Date,
         to endDate: Date,
-        direction: Direction
+        direction: Category.Direction
     ) async throws -> TransactionsSummary {
+        let normalizedStart = startDate.startOfDay
+        let normalizedEnd = endDate.endOfDay
+
         async let fetchedTransactions = transactionsService.getTransactions(
-            from: startDate,
-            to: endDate,
+            from: normalizedStart,
+            to: normalizedEnd,
             direction: direction
         )
         

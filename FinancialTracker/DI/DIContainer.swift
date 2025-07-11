@@ -22,6 +22,14 @@ final class DIContainer {
         BankAccountViewModelFactory(di: self)
     }()
 
+    lazy var transactionEditorVMFactory: any TransactionEditorViewModelFactoryProtocol = {
+        TransactionEditorViewModelFactory(di: self)
+    }()
+
+    lazy var analysisVMFactory: any AnalysisViewModelFactoryProtocol = {
+        AnalysisViewModelFactory(di: self)
+    }()
+
     lazy var articlesVMFactory: any ArticlesViewModelFactoryProtocol = {
         ArticlesViewModelFactory(di: self)
     }()

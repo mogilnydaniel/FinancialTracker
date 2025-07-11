@@ -1,9 +1,25 @@
 import SwiftUI
 
 struct TransactionsListView: View {
-    @State var viewModel: TransactionsListViewModel
-    
+    @ObservedObject var viewModel: TransactionsListViewModel
     @Environment(\.di) private var di
+    @Environment(\.transactionEditorViewModelFactory) private var editorVMFactory
+    
+    private enum EditorSheet: Identifiable {
+        case create
+        case edit(Transaction)
+        
+        var id: String {
+            switch self {
+            case .create:
+                return "create"
+            case .edit(let transaction):
+                return "edit-\(transaction.id)"
+            }
+        }
+    }
+    
+    @State private var activeSheet: EditorSheet?
     
     var body: some View {
         NavigationStack {
@@ -18,19 +34,26 @@ struct TransactionsListView: View {
                     .animation(.bouncy, value: viewModel.isLoaded)
                 }
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        NavigationLink {
-                            HistoryView(
-                                viewModel: di.historyVMFactory.makeHistoryViewModel(for: viewModel.direction)
-                            )
-                        } label: {
-                            Image(systemName: "clock")
-                        }
-                        .tint(Color("SecondaryAccentColor"))
-                    }
+                    historyToolbarItem
                 }
                 .task {
                     await viewModel.loadInitialData()
+                }
+                .sheet(item: $activeSheet) { sheet in
+                    let mode: TransactionEditorViewModel.Mode = switch sheet {
+                    case .create: .create(viewModel.direction)
+                    case .edit(let transaction): .edit(transaction)
+                    }
+                    
+                    let editorViewModel = editorVMFactory.makeTransactionEditorViewModel(for: mode)
+                    TransactionEditorView(
+                        viewModel: editorViewModel,
+                        onComplete: {
+                            Task {
+                                await viewModel.refresh()
+                            }
+                        }
+                    )
                 }
         }
     }
@@ -43,12 +66,9 @@ struct TransactionsListView: View {
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .background(Color(.systemGroupedBackground))
-        .safeAreaInset(edge: .top, spacing: 0) {
-            Color.clear.frame(height: 16)
-        }
         .refreshable {
             await viewModel.refresh()
-        }
+            try? await Task.sleep(nanoseconds: 300_000_000)        }
     }
     
     private var totalSection: some View {
@@ -72,11 +92,21 @@ struct TransactionsListView: View {
                     .listRowBackground(Color.clear)
             } else if !viewModel.transactions.isEmpty {
                 ForEach(viewModel.transactions) { transaction in
-                    TransactionRowView(
-                        transaction: transaction,
-                        category: viewModel.categories[transaction.categoryId]
-                    )
-                    .redacted(reason: viewModel.state == .loading ? .placeholder : [])
+                    Button {
+                        activeSheet = .edit(transaction)
+                    } label: {
+                        HStack {
+                            TransactionRowView(
+                                transaction: transaction,
+                                category: viewModel.categories[transaction.categoryId]
+                            )
+                            .redacted(reason: viewModel.state == .loading ? .placeholder : [])
+                            Spacer(minLength: 8)
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(Color(.tertiaryLabel))
+                        }
+                        .tint(.primary)
+                    }
                 }
             } else if viewModel.isLoaded {
                 ContentUnavailableView(
@@ -117,10 +147,25 @@ struct TransactionsListView: View {
         .frame(minHeight: 200)
     }
     
+    private var historyToolbarItem: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            NavigationLink {
+                HistoryView(
+                    viewModel: di.historyVMFactory.makeHistoryViewModel(for: viewModel.direction)
+                )
+            } label: {
+                Image(systemName: "clock")
+            }
+            .tint(Color("SecondaryAccentColor"))
+        }
+    }
+    
     @ViewBuilder
     private var floatingActionButton: some View {
         if viewModel.isLoaded {
-            Button(action: { }) {
+            Button {
+                activeSheet = .create
+            } label: {
                 Image(systemName: "plus")
                     .font(.title.weight(.semibold))
                     .padding()
@@ -137,7 +182,7 @@ struct TransactionsListView: View {
 #Preview {
     TransactionsListView(
         viewModel: TransactionsListViewModel(
-            direction: .income,
+            direction: Category.Direction.income,
             repository: TransactionsRepository(
                 transactionsService: MockTransactionsService(),
                 categoriesService: MockCategoriesService()

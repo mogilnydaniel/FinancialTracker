@@ -1,7 +1,8 @@
 import Foundation
 import SwiftUI
+import UIKit
 
-struct Category: Identifiable, Codable, Equatable {
+struct Category: Identifiable, Codable, Equatable, Hashable {
     let id: Int
     let name: String
     let icon: String
@@ -23,5 +24,9 @@ extension Category {
     var color: Color {
         let index = abs(id) % Self.colors.count
         return Self.colors[index].opacity(0.3)
+    }
+    
+    var uiColor: UIColor {
+        UIColor(color)
     }
 }

@@ -4,7 +4,7 @@ protocol TransactionsServiceProtocol {
     func getTransactions(
         from startDate: Date,
         to endDate: Date,
-        direction: Direction
+        direction: Category.Direction
     ) async throws -> [Transaction]
     
     @discardableResult
@@ -53,7 +53,7 @@ actor MockTransactionsService: TransactionsServiceProtocol {
     func getTransactions(
         from startDate: Date,
         to endDate: Date,
-        direction: Direction
+        direction: Category.Direction
     ) async throws -> [Transaction] {
         let dateFiltered = transactions.values.filter { transaction in
             let transactionDate = transaction.transactionDate
@@ -86,6 +86,7 @@ actor MockTransactionsService: TransactionsServiceProtocol {
             modificationDate: Date()
         )
         transactions[newId] = newTransaction
+        NotificationCenter.default.post(name: .transactionDidChange, object: nil, userInfo: ["transaction": newTransaction])
         return newTransaction
     }
 
@@ -106,6 +107,7 @@ actor MockTransactionsService: TransactionsServiceProtocol {
             modificationDate: Date()
         )
         transactions[id] = updatedTransaction
+        NotificationCenter.default.post(name: .transactionDidChange, object: nil, userInfo: ["transaction": updatedTransaction, "oldTransaction": oldTransaction])
         return updatedTransaction
     }
  
@@ -114,6 +116,7 @@ actor MockTransactionsService: TransactionsServiceProtocol {
         guard let removedTransaction = transactions.removeValue(forKey: id) else {
             throw TransactionError.notFound
         }
+        NotificationCenter.default.post(name: .transactionDidChange, object: nil, userInfo: ["removedTransaction": removedTransaction])
         return removedTransaction
     }
 }
