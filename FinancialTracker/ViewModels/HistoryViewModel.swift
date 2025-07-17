@@ -57,7 +57,7 @@ final class HistoryViewModel: ObservableObject, TransactionsListProtocol, Transa
             apply(result, to: self)
             state = .loaded
         } catch {
-            state = .failed(error)
+            state = .failed(ErrorMapper.wrap(error))
         }
     }
     

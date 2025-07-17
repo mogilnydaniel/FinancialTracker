@@ -49,9 +49,9 @@ final class TransactionsListViewModel: ObservableObject, TransactionsListProtoco
             }
         } catch {
             if showLoading {
-                state = .failed(error)
+                state = .failed(ErrorMapper.wrap(error))
             } else {
-                errorMessage = error.localizedDescription
+                errorMessage = ErrorMapper.message(for: error)
             }
         }
     }
@@ -81,9 +81,13 @@ final class TransactionsListViewModel: ObservableObject, TransactionsListProtoco
     }
     
     func fetchLatest() async throws -> TransactionsSummary {
-        try await repository.getTransactionsSummary(
-            from: Date.today.startOfDay,
-            to: Date.today.endOfDay,
+        let today = Date.today
+        let endDate = Calendar.current.date(byAdding: .day, value: 7, to: today.endOfDay) ?? today.endOfDay
+        let startDate = Calendar.current.date(byAdding: .day, value: -30, to: today.startOfDay) ?? today.startOfDay
+        
+        return try await repository.getTransactionsSummary(
+            from: startDate,
+            to: endDate,
             direction: direction
         )
     }

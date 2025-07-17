@@ -51,9 +51,15 @@ final class TransactionsRepository: TransactionsRepositoryProtocol {
         
         async let fetchedCategories = categoriesService.getCategories()
         
-        let (transactions, categories) = try await (fetchedTransactions, fetchedCategories)
+        let (allTransactions, categories) = try await (fetchedTransactions, fetchedCategories)
         
         let categoriesDict = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+        
+        let transactions = allTransactions.filter { transaction in
+            guard let category = categoriesDict[transaction.categoryId] else { return false }
+            return category.direction == direction
+        }
+        
         let totalAmount = transactions.reduce(Decimal.zero) { $0 + $1.amount }
         
         return TransactionsSummary(

@@ -2,37 +2,42 @@ import SwiftUI
 
 struct MainTabView: View {
     @Environment(\.di) private var di
+    @StateObject private var networkDetector = NetworkConnectionDetector.shared
     
     var body: some View {
-        TabView {
-            transactionsList(for: .outcome)
-                .tabItem {
-                    Label("Расходы", systemImage: "chart.line.downtrend.xyaxis")
+        VStack(spacing: 0) {
+            TabView {
+                transactionsList(for: .outcome)
+                    .tabItem {
+                        Label("Расходы", systemImage: "chart.line.downtrend.xyaxis")
+                    }
+                
+                transactionsList(for: .income)
+                    .tabItem {
+                        Label("Доходы", systemImage: "chart.line.uptrend.xyaxis")
+                    }
+                
+                NavigationStack {
+                    BankAccountView()
                 }
-            
-            transactionsList(for: .income)
-                .tabItem {
-                    Label("Доходы", systemImage: "chart.line.uptrend.xyaxis")
-                }
-            
-            NavigationStack {
-                BankAccountView()
+                    .tabItem {
+                        Label("Счет", systemImage: "creditcard")
+                    }
+                
+                ArticlesView()
+                    .tabItem {
+                        Label("Статьи", systemImage: "list.bullet.rectangle")
+                    }
+                
+                Text("Настройки")
+                    .tabItem {
+                        Label("Настройки", systemImage: "gear")
+                    }
             }
-                .tabItem {
-                    Label("Счет", systemImage: "creditcard")
-                }
+            .background(ShakeDetector())
             
-            ArticlesView()
-                .tabItem {
-                    Label("Статьи", systemImage: "list.bullet.rectangle")
-                }
-            
-            Text("Настройки")
-                .tabItem {
-                    Label("Настройки", systemImage: "gear")
-                }
+            OfflineIndicatorView(isOffline: !networkDetector.isConnected)
         }
-        .background(ShakeDetector())
     }
     
     private func transactionsList(for direction: Category.Direction) -> some View {

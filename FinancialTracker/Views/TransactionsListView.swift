@@ -24,7 +24,7 @@ struct TransactionsListView: View {
     var body: some View {
         NavigationStack {
             listContent
-                .navigationTitle(viewModel.direction == .income ? "Доходы сегодня" : "Расходы сегодня")
+                .navigationTitle(viewModel.direction == .income ? "Мои доходы" : "Мои расходы")
                 .navigationBarTitleDisplayMode(.large)
                 .safeAreaInset(edge: .bottom) {
                     HStack {
@@ -39,6 +39,14 @@ struct TransactionsListView: View {
                 .task {
                     await viewModel.loadInitialData()
                 }
+                .alert("Ошибка", isPresented: Binding(
+                    get: { viewModel.errorMessage != nil },
+                    set: { _ in viewModel.errorMessage = nil }
+                ), actions: {
+                    Button("ОК", role: .cancel) {}
+                }, message: {
+                    Text(viewModel.errorMessage ?? "Неизвестная ошибка")
+                })
                 .sheet(item: $activeSheet) { sheet in
                     let mode: TransactionEditorViewModel.Mode = switch sheet {
                     case .create: .create(viewModel.direction)
@@ -49,7 +57,7 @@ struct TransactionsListView: View {
                     TransactionEditorView(
                         viewModel: editorViewModel,
                         onComplete: {
-                            Task {
+                            Task { @MainActor in
                                 await viewModel.refresh()
                             }
                         }
@@ -112,7 +120,7 @@ struct TransactionsListView: View {
                 ContentUnavailableView(
                     "Нет операций",
                     systemImage: "doc.text.magnifyingglass",
-                    description: Text("За сегодня пока нет \(viewModel.direction == .income ? "доходов" : "расходов").")
+                    description: Text("Пока нет \(viewModel.direction == .income ? "доходов" : "расходов").")
                 )
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
