@@ -6,6 +6,7 @@ final class AnalysisViewController: UIViewController {
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<AnalysisScreenSection, AnalysisScreenItem>!
     private let activityIndicator = UIActivityIndicatorView(style: .large)
+    private let errorView = ErrorView()
     private var cancellables = Set<AnyCancellable>()
 
     init(viewModel: AnalysisViewModel) {
@@ -37,6 +38,7 @@ final class AnalysisViewController: UIViewController {
         configureCollectionView()
         configureDataSource()
         configureActivityIndicator()
+        configureErrorView()
         bindViewModel()
         viewModel.load()
     }
@@ -62,6 +64,7 @@ final class AnalysisViewController: UIViewController {
         let layout = UICollectionViewCompositionalLayout.list(using: config)
         layout.configuration.interSectionSpacing = 0
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
+        collectionView.delegate = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemGroupedBackground
         collectionView.contentInset.top = -12
@@ -81,6 +84,19 @@ final class AnalysisViewController: UIViewController {
         NSLayoutConstraint.activate([
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+    
+    private func configureErrorView() {
+        errorView.translatesAutoresizingMaskIntoConstraints = false
+        errorView.isHidden = true
+        view.addSubview(errorView)
+        
+        NSLayoutConstraint.activate([
+            errorView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            errorView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            errorView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            errorView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 
@@ -107,7 +123,7 @@ final class AnalysisViewController: UIViewController {
         }
         
         let sortCellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, AnalysisScreenItem.SortType> { [weak self] cell, indexPath, sortType in
-            var config = SortCellContentConfiguration(selected: sortType) { [weak self] newType in
+            let config = SortCellContentConfiguration(selected: sortType) { [weak self] newType in
                 switch newType {
                 case .date:
                     self?.viewModel.sortOption = .date
@@ -144,7 +160,7 @@ final class AnalysisViewController: UIViewController {
         }
 
         let headerRegistration = UICollectionView.SupplementaryRegistration<UICollectionViewListCell>(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, elementKind, indexPath in
-            var config = UIListContentConfiguration.groupedHeader()
+            var config = UIListContentConfiguration.header()
             config.text = "Операции"
             supplementaryView.contentConfiguration = config
         }
@@ -198,22 +214,36 @@ final class AnalysisViewController: UIViewController {
             if shouldShowLoading {
                 activityIndicator.startAnimating()
                 collectionView.isHidden = true
+                errorView.isHidden = true
             }
         case .loaded:
             activityIndicator.stopAnimating()
             collectionView.isHidden = false
+            errorView.isHidden = true
         case .failed(let error):
             activityIndicator.stopAnimating()
             collectionView.isHidden = true
-            print("Error: \(error.localizedDescription)")
+            showError(error)
         }
+    }
+    
+    private func showError(_ error: Error) {
+        errorView.configure(
+            title: "Ошибка загрузки",
+            message: error.localizedDescription,
+            systemImage: "exclamationmark.triangle.fill",
+            retryButtonTitle: "Повторить"
+        ) { [weak self] in
+            self?.viewModel.load()
+        }
+        errorView.isHidden = false
     }
 
     private func applySnapshot(operations: [AnalysisOperationItem], total: Decimal, startDate: Date, endDate: Date) {
         var snapshot = NSDiffableDataSourceSnapshot<AnalysisScreenSection, AnalysisScreenItem>()
         
         snapshot.appendSections([.info])
-        var infoItems: [AnalysisScreenItem] = [
+        let infoItems: [AnalysisScreenItem] = [
             .date(type: .start, date: startDate),
             .date(type: .end, date: endDate),
             .sort(viewModel.sortOption == .date ? .date : .amount),
@@ -269,3 +299,9 @@ final class AnalysisViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
 } 
+
+extension AnalysisViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+    }
+}

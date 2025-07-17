@@ -166,8 +166,6 @@ extension TransactionEditorViewModel {
     
     TransactionEditorView(
         viewModel: viewModel,
-        onComplete: {
-            print("Completed")
-        }
+        onComplete: { }
     )
 } 

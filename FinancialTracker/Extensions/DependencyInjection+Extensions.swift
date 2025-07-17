@@ -1,23 +1,23 @@
 import SwiftUI
 
 private struct ViewModelFactoryKey: EnvironmentKey {
-    static let defaultValue: any TransactionsListViewModelFactoryProtocol = DIContainer.production.transactionsListVMFactory
+    static let defaultValue: any TransactionsListViewModelFactoryProtocol = DIContainer.hybrid.transactionsListVMFactory
 }
 
 private struct HistoryViewModelFactoryKey: EnvironmentKey {
-    static let defaultValue: any HistoryViewModelFactoryProtocol = DIContainer.production.historyVMFactory
+    static let defaultValue: any HistoryViewModelFactoryProtocol = DIContainer.hybrid.historyVMFactory
 }
 
 private struct BankAccountViewModelFactoryKey: EnvironmentKey {
-    static let defaultValue: any BankAccountViewModelFactoryProtocol = DIContainer.production.bankAccountVMFactory
+    static let defaultValue: any BankAccountViewModelFactoryProtocol = DIContainer.hybrid.bankAccountVMFactory
 }
 
 private struct TransactionEditorViewModelFactoryKey: EnvironmentKey {
-    static let defaultValue: any TransactionEditorViewModelFactoryProtocol = DIContainer.production.transactionEditorVMFactory
+    static let defaultValue: any TransactionEditorViewModelFactoryProtocol = DIContainer.hybrid.transactionEditorVMFactory
 }
 
 private struct AnalysisViewModelFactoryKey: EnvironmentKey {
-    static let defaultValue: any AnalysisViewModelFactoryProtocol = DIContainer.production.analysisVMFactory
+    static let defaultValue: any AnalysisViewModelFactoryProtocol = DIContainer.hybrid.analysisVMFactory
 }
 
 extension EnvironmentValues {

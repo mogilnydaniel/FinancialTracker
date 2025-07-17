@@ -55,10 +55,61 @@ final class DIContainer {
             transactionsService: MockTransactionsService()
         )
     }()
+
+    static let network: DIContainer = {
+        let token = "WNKoU01o5koxFvqP6882dwjR"
+        let client = NetworkClient(token: token)
+        return DIContainer(
+            categoriesService: NetworkCategoriesService(client: client),
+            bankAccountsService: NetworkAccountsService(client: client),
+            transactionsService: NetworkTransactionsService(client: client)
+        )
+    }()
+    
+    static let hybrid: DIContainer = {
+        let token = "WNKoU01o5koxFvqP6882dwjR"
+        let client = NetworkClient(token: token)
+        let manager = SwiftDataManager.shared
+        
+        do {
+            let transactionsPersistence = try manager.createTransactionsPersistence()
+            let bankAccountsPersistence = try manager.createBankAccountsPersistence()
+            let categoriesPersistence = try manager.createCategoriesPersistence()
+            let backup = try manager.createBackupPersistence()
+            
+            let backupSyncService = BackupSyncService(
+                backup: backup,
+                networkClient: client,
+                transactionsPersistence: transactionsPersistence,
+                bankAccountsPersistence: bankAccountsPersistence
+            )
+            
+            return DIContainer(
+                categoriesService: HybridCategoriesService(
+                    persistence: categoriesPersistence,
+                    networkClient: client
+                ),
+                bankAccountsService: HybridBankAccountsService(
+                    persistence: bankAccountsPersistence,
+                    backup: backup,
+                    networkClient: client,
+                    syncService: backupSyncService
+                ),
+                transactionsService: HybridTransactionsService(
+                    persistence: transactionsPersistence,
+                    backup: backup,
+                    networkClient: client,
+                    syncService: backupSyncService
+                )
+            )
+        } catch {
+            fatalError("Failed to create hybrid DIContainer: \(error)")
+        }
+    }()
 }
 
 private struct DIContainerKey: EnvironmentKey {
-    static let defaultValue: DIContainer = .production
+    static let defaultValue: DIContainer = .network
 }
 
 extension EnvironmentValues {

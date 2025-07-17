@@ -7,6 +7,13 @@ struct Category: Identifiable, Codable, Equatable, Hashable {
     let name: String
     let icon: String
     let direction: Direction
+
+    init(id: Int, name: String, icon: String, direction: Direction) {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.direction = direction
+    }
 }
 
 extension Category {

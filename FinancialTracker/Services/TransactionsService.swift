@@ -60,16 +60,7 @@ actor MockTransactionsService: TransactionsServiceProtocol {
             return transactionDate >= startDate && transactionDate <= endDate
         }
         
-        let directionFiltered = dateFiltered.filter { transaction in
-            switch direction {
-            case .income:
-                return transaction.amount > 0
-            case .outcome:
-                return transaction.amount < 0
-            }
-        }
-        
-        return Array(directionFiltered)
+        return Array(dateFiltered)
     }
 
     func createTransaction(_ request: TransactionRequest) async throws -> Transaction {

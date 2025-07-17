@@ -1,6 +1,6 @@
 import Foundation
 
-struct TransactionRequest {
+struct TransactionRequest: Codable {
     let accountId: Int
     let categoryId: Int
     let amount: Decimal

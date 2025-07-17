@@ -121,7 +121,7 @@ final class TransactionEditorViewModel: ObservableObject {
         } catch {
             alertItem = AlertItem(
                 title: "Ошибка загрузки",
-                message: "Не удалось загрузить список категорий. Пожалуйста, попробуйте еще раз."
+                message: ErrorMapper.message(for: error)
             )
         }
     }
@@ -153,10 +153,7 @@ final class TransactionEditorViewModel: ObservableObject {
         
         do {
             let account = try await bankAccountsService.getBankAccount()
-            var finalAmount = amountValue
-            if mode.direction == .outcome {
-                finalAmount.negate()
-            }
+            let finalAmount = amountValue
             
             let trimmedComment = comment.trimmingCharacters(in: .whitespacesAndNewlines)
             
@@ -180,7 +177,7 @@ final class TransactionEditorViewModel: ObservableObject {
         } catch {
             alertItem = AlertItem(
                 title: "Ошибка сохранения",
-                message: "Не удалось сохранить операцию. Пожалуйста, попробуйте еще раз."
+                message: ErrorMapper.message(for: error)
             )
         }
     }
@@ -199,7 +196,7 @@ final class TransactionEditorViewModel: ObservableObject {
         } catch {
             alertItem = AlertItem(
                 title: "Ошибка удаления",
-                message: "Не удалось удалить операцию. Пожалуйста, попробуйте еще раз."
+                message: ErrorMapper.message(for: error)
             )
         }
     }

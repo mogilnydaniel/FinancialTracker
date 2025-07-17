@@ -1,7 +1,7 @@
 import Foundation
 
-struct BankAccount: Identifiable {
-    enum Currency: Equatable {
+struct BankAccount: Identifiable, Codable {
+    enum Currency: Equatable, Codable {
         case rub
         case usd
         case eur
