@@ -129,13 +129,25 @@ actor SwiftDataTransactionsPersistence: TransactionsPersistenceProtocol {
     
     
     func syncTransactions(_ transactions: [Transaction]) async throws {
+        guard !transactions.isEmpty else { return }
+
+        let ids = transactions.map { $0.id }
+        let predicate = #Predicate<TransactionEntity> { entity in
+            ids.contains(entity.id)
+        }
+        let descriptor = FetchDescriptor<TransactionEntity>(predicate: predicate)
+        let existing = try modelContext.fetch(descriptor)
+        var existingMap: [Int: TransactionEntity] = [:]
+        for entity in existing { existingMap[entity.id] = entity }
         for transaction in transactions {
-            if try await transactionExists(id: transaction.id) {
-                _ = try await updateTransaction(transaction)
+            if let entity = existingMap[transaction.id] {
+                entity.update(from: transaction)
             } else {
-                _ = try await createTransaction(transaction)
+                let entity = TransactionEntity(from: transaction)
+                modelContext.insert(entity)
             }
         }
+        try modelContext.save()
     }
     
     private func getTransactionEntity(by id: Int) async throws -> TransactionEntity? {

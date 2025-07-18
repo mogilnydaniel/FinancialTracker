@@ -76,7 +76,7 @@ struct TransactionsListView: View {
         .background(Color(.systemGroupedBackground))
         .refreshable {
             await viewModel.refresh()
-            try? await Task.sleep(nanoseconds: 300_000_000)        }
+        }
     }
     
     private var totalSection: some View {
@@ -188,13 +188,5 @@ struct TransactionsListView: View {
 }
 
 #Preview {
-    TransactionsListView(
-        viewModel: TransactionsListViewModel(
-            direction: Category.Direction.income,
-            repository: TransactionsRepository(
-                transactionsService: MockTransactionsService(),
-                categoriesService: MockCategoriesService()
-            )
-        )
-    )
+    Text("Список транзакций")
 }

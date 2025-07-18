@@ -4,7 +4,7 @@ protocol ArticlesServiceProtocol {
     func getArticles() async throws -> [Category]
 }
 
-struct MockArticlesService: ArticlesServiceProtocol {
+struct ArticlesService: ArticlesServiceProtocol {
     private let categoriesService: any CategoriesServiceProtocol
     
     init(categoriesService: any CategoriesServiceProtocol) {

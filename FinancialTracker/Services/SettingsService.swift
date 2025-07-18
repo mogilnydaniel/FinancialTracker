@@ -48,6 +48,10 @@ final class SettingsService: SettingsServiceProtocol, ObservableObject {
     }
     
     var storageType: StorageType {
+        if let raw = userDefaults.string(forKey: Keys.storageType),
+           let type = StorageType(rawValue: raw) {
+            return type
+        }
         return .swiftData
     }
     

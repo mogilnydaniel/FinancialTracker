@@ -1,23 +1,58 @@
 import SwiftUI
 
 private struct ViewModelFactoryKey: EnvironmentKey {
-    static let defaultValue: any TransactionsListViewModelFactoryProtocol = DIContainer.hybrid.transactionsListVMFactory
+    static let defaultValue: any TransactionsListViewModelFactoryProtocol = {
+        let client = NetworkClient(token: DIContainer.apiToken)
+        return DIContainer(
+            categoriesService: NetworkCategoriesService(client: client),
+            bankAccountsService: NetworkAccountsService(client: client),
+            transactionsService: NetworkTransactionsService(client: client)
+        ).transactionsListVMFactory
+    }()
 }
 
 private struct HistoryViewModelFactoryKey: EnvironmentKey {
-    static let defaultValue: any HistoryViewModelFactoryProtocol = DIContainer.hybrid.historyVMFactory
+    static let defaultValue: any HistoryViewModelFactoryProtocol = {
+        let client = NetworkClient(token: DIContainer.apiToken)
+        return DIContainer(
+            categoriesService: NetworkCategoriesService(client: client),
+            bankAccountsService: NetworkAccountsService(client: client),
+            transactionsService: NetworkTransactionsService(client: client)
+        ).historyVMFactory
+    }()
 }
 
 private struct BankAccountViewModelFactoryKey: EnvironmentKey {
-    static let defaultValue: any BankAccountViewModelFactoryProtocol = DIContainer.hybrid.bankAccountVMFactory
+    static let defaultValue: any BankAccountViewModelFactoryProtocol = {
+        let client = NetworkClient(token: DIContainer.apiToken)
+        return DIContainer(
+            categoriesService: NetworkCategoriesService(client: client),
+            bankAccountsService: NetworkAccountsService(client: client),
+            transactionsService: NetworkTransactionsService(client: client)
+        ).bankAccountVMFactory
+    }()
 }
 
 private struct TransactionEditorViewModelFactoryKey: EnvironmentKey {
-    static let defaultValue: any TransactionEditorViewModelFactoryProtocol = DIContainer.hybrid.transactionEditorVMFactory
+    static let defaultValue: any TransactionEditorViewModelFactoryProtocol = {
+        let client = NetworkClient(token: DIContainer.apiToken)
+        return DIContainer(
+            categoriesService: NetworkCategoriesService(client: client),
+            bankAccountsService: NetworkAccountsService(client: client),
+            transactionsService: NetworkTransactionsService(client: client)
+        ).transactionEditorVMFactory
+    }()
 }
 
 private struct AnalysisViewModelFactoryKey: EnvironmentKey {
-    static let defaultValue: any AnalysisViewModelFactoryProtocol = DIContainer.hybrid.analysisVMFactory
+    static let defaultValue: any AnalysisViewModelFactoryProtocol = {
+        let client = NetworkClient(token: DIContainer.apiToken)
+        return DIContainer(
+            categoriesService: NetworkCategoriesService(client: client),
+            bankAccountsService: NetworkAccountsService(client: client),
+            transactionsService: NetworkTransactionsService(client: client)
+        ).analysisVMFactory
+    }()
 }
 
 extension EnvironmentValues {

@@ -1,9 +1,11 @@
 import Foundation
 
+struct Empty: Codable {}
+
 enum HTTPMethod: String {
     case get = "GET"
     case post = "POST"
-    case put = "PUT"
+    case patch = "PATCH"
     case delete = "DELETE"
 }
 
@@ -71,63 +73,64 @@ final actor NetworkClient {
         self.token = token
     }
     
-    func request<Req: Encodable, Res: Decodable>(
-        _ endpoint: Endpoint,
-        body: Req? = nil,
-        encoder: JSONEncoder = JSONEncoder()
-    ) async throws -> Res {
+    func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T {
+        return try await request(endpoint, body: Empty())
+    }
+    
+    func request<T: Decodable, B: Encodable>(_ endpoint: Endpoint, body: B, encoder: JSONEncoder = JSONEncoder()) async throws -> T {
+        #if DEBUG
+        let startTime = Date()
+        print("Starting request: \(endpoint.method.rawValue) \(endpoint.path)")
+        #endif
+        
+        guard await NetworkConnectionDetector.shared.isConnected else {
+            throw NetworkError.noConnection
+        }
+        
         guard var urlComponents = URLComponents(url: baseURL.appendingPathComponent(endpoint.path), resolvingAgainstBaseURL: false) else {
             throw NetworkError.invalidURL
         }
+        
         if !endpoint.query.isEmpty {
             urlComponents.queryItems = endpoint.query
         }
         guard let url = urlComponents.url else { throw NetworkError.invalidURL }
         
         var request = URLRequest(url: url)
+        request.timeoutInterval = 60
         request.httpMethod = endpoint.method.rawValue
-        request.allHTTPHeaderFields = endpoint.headers
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
         
-        if let body = body {
+        if endpoint.method != .get, !(body is Empty) {
+            request.httpBody = try encoder.encode(body)
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            do {
-                let data = try await Task.detached(priority: .utility) { try encoder.encode(body) }.value
-                request.httpBody = data
-            } catch {
-                throw NetworkError.encoding
-            }
+        }
+        
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        #if DEBUG
+        let elapsed = Date().timeIntervalSince(startTime)
+        print("Response received for \(endpoint.path) in \(String(format: "%.2f", elapsed))s")
+        #endif
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.unknown
+        }
+        
+        guard 200..<300 ~= httpResponse.statusCode else {
+            throw NetworkError.http(code: httpResponse.statusCode, data: data)
+        }
+        
+        if T.self == Empty.self {
+            return Empty() as! T
         }
         
         do {
-            let (data, response) = try await session.data(for: request, delegate: nil)
-            guard let httpResponse = response as? HTTPURLResponse else { throw NetworkError.unknown }
-            let status = httpResponse.statusCode
-            
-            guard (200..<300).contains(status) else { throw NetworkError.http(code: status, data: data) }
-            do {
-                return try await Task.detached(priority: .utility) { try self.decoder.decode(Res.self, from: data) }.value
-            } catch {
-                throw NetworkError.decoding
-            }
+            let decoder = JSONCoding.decoder
+            return try decoder.decode(T.self, from: data)
         } catch {
-            if let urlError = error as? URLError {
-                switch urlError.code {
-                case .notConnectedToInternet:
-                    throw NetworkError.noConnection
-                case .cannotFindHost, .cannotConnectToHost:
-                    throw NetworkError.serverNotFound
-                case .timedOut:
-                    throw NetworkError.timeout
-                case .cancelled:
-                    throw NetworkError.cancelled
-                default:
-                    throw NetworkError.unknown
-                }
-            }
-            if let networkError = error as? NetworkError { throw networkError }
-            throw NetworkError.unknown
+            throw NetworkError.decoding
         }
     }
 } 

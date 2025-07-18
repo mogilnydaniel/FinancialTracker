@@ -156,7 +156,12 @@ extension TransactionEditorViewModel {
 }
 
 #Preview {
-    let di = DIContainer.production
+    let client = NetworkClient(token: DIContainer.apiToken)
+    let di = DIContainer(
+        categoriesService: NetworkCategoriesService(client: client),
+        bankAccountsService: NetworkAccountsService(client: client),
+        transactionsService: NetworkTransactionsService(client: client)
+    )
     let viewModel = TransactionEditorViewModel(
         mode: .create(.outcome),
         repository: di.transactionsRepository,

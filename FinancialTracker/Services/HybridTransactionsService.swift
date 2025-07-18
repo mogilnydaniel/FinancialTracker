@@ -5,6 +5,8 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
     private let backup: any BackupProtocol
     private let networkClient: NetworkClient
     private let syncService: BackupSyncService?
+    private var lastSyncTime: Date = .distantPast
+    private var syncTask: Task<Void, Never>?
     
     init(
         persistence: TransactionsPersistenceProtocol,
@@ -26,10 +28,19 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
         Task { @MainActor in
             for await isConnected in NetworkConnectionDetector.shared.connectionStateChange.values {
                 if isConnected {
-                    Task {
-                        await tryAutoSync()
-                    }
+                    await scheduleAutoSync()
                 }
+            }
+        }
+    }
+    
+    private func scheduleAutoSync() async {
+        syncTask?.cancel()
+        syncTask = Task {
+            do {
+                try await Task.sleep(for: .seconds(2))
+                await tryAutoSync()
+            } catch {
             }
         }
     }
@@ -37,8 +48,12 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
     private func tryAutoSync() async {
         guard let syncService = syncService else { return }
         
+        let now = Date()
+        guard now.timeIntervalSince(lastSyncTime) > 30 else { return }
+        
         do {
             try await syncService.syncPendingBackups()
+            lastSyncTime = now
         } catch {
         }
     }
@@ -48,16 +63,35 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
         to endDate: Date,
         direction: Category.Direction
     ) async throws -> [Transaction] {
+        #if DEBUG
+        print("HybridTransactionsService.getTransactions called with \(direction) from \(startDate) to \(endDate)")
+        #endif
+        
         let localTransactions = try await persistence.getTransactions(
             from: startDate,
             to: endDate
         )
         
-        Task { @MainActor in
-            await syncFromNetwork(startDate: startDate, endDate: endDate)
+        let now = Date()
+        if now.timeIntervalSince(lastSyncTime) > 60 {
+            Task { @MainActor in
+                await syncFromNetwork(startDate: startDate, endDate: endDate)
+            }
         }
         
-        return localTransactions
+        let filteredTransactions = localTransactions.filter { transaction in
+            if direction == .income {
+                return transaction.amount > 0
+            } else {
+                return transaction.amount < 0
+            }
+        }
+        
+        #if DEBUG
+        print("Filtered \(filteredTransactions.count) \(direction) transactions from \(localTransactions.count) total")
+        #endif
+        
+        return filteredTransactions
     }
     
     func createTransaction(_ request: TransactionRequest) async throws -> Transaction {
@@ -258,7 +292,7 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
             comment: request.comment
         )
         
-        let endpoint = Endpoint(path: "/transactions/\(id)", method: .put)
+        let endpoint = Endpoint(path: "/transactions/\(id)", method: .patch)
         let dto: TransactionDTO = try await networkClient.request(endpoint, body: body, encoder: JSONCoding.encoder)
         
         guard let transaction = TransactionDTOToDomainConverter.convert(dto) else {

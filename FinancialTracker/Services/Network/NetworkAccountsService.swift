@@ -36,7 +36,7 @@ struct NetworkAccountsService: BankAccountsServiceProtocol {
             let currency: String
         }
         let body = UpdateAccountBody(name: updatedAccount.name, balance: updatedAccount.balance, currency: updatedAccount.currency.code)
-        let endpoint = Endpoint(path: "/accounts/\(updatedAccount.id)", method: .put)
+        let endpoint = Endpoint(path: "/accounts/\(updatedAccount.id)", method: .patch)
         let dto: BankAccountDTO = try await client.request(endpoint, body: body, encoder: JSONCoding.encoder)
         guard let updated = BankAccountDTOToDomainConverter.convert(dto) else {
             throw NSError(domain: "ConversionError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert BankAccountDTO to BankAccount"])
