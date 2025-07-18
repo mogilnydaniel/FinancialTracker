@@ -43,7 +43,7 @@ final class DataMigrationService: DataMigrationProtocol {
     
     func migrateFromSwiftDataToCoreData() async throws {
         #if DEBUG
-        print("🔄 Starting migration: SwiftData → CoreData")
+        print("Starting migration: SwiftData → CoreData")
         #endif
         
         let swiftDataTransactions = try swiftDataManager.createTransactionsPersistence()

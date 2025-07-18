@@ -94,7 +94,7 @@ actor HybridBankAccountsService: BankAccountsServiceProtocol {
             currency: account.currency.code
         )
         
-        let endpoint = Endpoint(path: "/accounts/\(account.id)", method: .put)
+        let endpoint = Endpoint(path: "/accounts/\(account.id)", method: .patch)
         let dto: BankAccountDTO = try await networkClient.request(endpoint, body: body, encoder: JSONCoding.encoder)
         
         guard let updated = BankAccountDTOToDomainConverter.convert(dto) else {

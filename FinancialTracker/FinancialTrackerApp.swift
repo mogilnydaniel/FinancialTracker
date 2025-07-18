@@ -21,14 +21,20 @@ struct FinancialTrackerApp: App {
     }
     
     private func setupStorage() {
+        #if DEBUG
+        let startTime = Date()
+        print("Starting storage initialization...")
+        #endif
+        
         do {
             _ = try SwiftDataManager.shared.modelContainer
             #if DEBUG
-            print("✅ Storage systems initialized successfully")
+            let elapsed = Date().timeIntervalSince(startTime)
+            print("Storage systems initialized successfully in \(String(format: "%.2f", elapsed))s")
             #endif
         } catch {
             #if DEBUG
-            print("❌ Failed to initialize storage: \(error)")
+            print("Failed to initialize storage: \(error)")
             #endif
         }
     }
@@ -36,13 +42,13 @@ struct FinancialTrackerApp: App {
     private func setupNetworkMonitoring() {
         _ = NetworkConnectionDetector.shared
         #if DEBUG
-        print("📡 Network monitoring started")
+        print("Network monitoring started")
         #endif
     }
     
     private func setupMigration() {
         #if DEBUG
-        print("🔄 Migration service ready")
+        print("Migration service ready")
         #endif
     }
 }

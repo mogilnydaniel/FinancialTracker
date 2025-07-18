@@ -20,6 +20,19 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
     ) async throws -> [Transaction] {
         let accountId = 1
         
+        do {
+            return try await fetchFromNetwork(accountId: accountId, startDate: startDate, endDate: endDate)
+        } catch {
+            if let cachedTransactions = try? await cache.load() {
+                return cachedTransactions.filter {
+                    $0.transactionDate >= startDate && $0.transactionDate <= endDate
+                }
+            }
+            throw error
+        }
+    }
+    
+    private func fetchFromNetwork(accountId: Int, startDate: Date, endDate: Date) async throws -> [Transaction] {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -33,21 +46,11 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
         var endpoint = Endpoint(path: "/transactions/account/\(accountId)/period", method: .get)
         endpoint.query = query
 
-        do {
-            let dtoList: [TransactionDTO] = try await client.request(endpoint, body: Optional<Int>.none)
-            let transactions = dtoList.compactMap { TransactionDTOToDomainConverter.convert($0) }
-            
-            try? await cache.save(transactions)
-
-            return transactions
-        } catch {
-            if let cachedTransactions = try? await cache.load() {
-                return cachedTransactions.filter {
-                    $0.transactionDate >= startDate && $0.transactionDate <= endDate
-                }
-            }
-            throw error
-        }
+        let dtoList: [TransactionDTO] = try await client.request(endpoint, body: Optional<Int>.none)
+        let transactions = dtoList.compactMap { TransactionDTOToDomainConverter.convert($0) }
+        
+        try? await cache.save(transactions)
+        return transactions
     }
 
     func createTransaction(_ request: TransactionRequest) async throws -> Transaction {
@@ -136,7 +139,7 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
             comment: request.comment 
         )
         
-        let endpoint = Endpoint(path: "/transactions/\(id)", method: .put)
+        let endpoint = Endpoint(path: "/transactions/\(id)", method: .patch)
         let dto: TransactionDTO = try await client.request(endpoint, body: body, encoder: JSONCoding.encoder)
         guard let transaction = TransactionDTOToDomainConverter.convert(dto) else {
             throw NSError(domain: "ConversionError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert TransactionDTO to Transaction"])

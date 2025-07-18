@@ -53,11 +53,12 @@ actor HybridCategoriesService: CategoriesServiceProtocol {
         let dto: [CategoryDTO] = try await networkClient.request(endpoint, body: Optional<Int>.none)
         let categories = dto.compactMap(CategoryDTOToDomainConverter.convert)
         
-        for category in categories {
-            let existingCategories = try await persistence.getCategories()
-            if !existingCategories.contains(where: { $0.id == category.id }) {
-                try await persistence.saveCategories([category])
-            }
+
+        let existing = try await persistence.getCategories()
+        let existingIds = Set(existing.map { $0.id })
+        let newCategories = categories.filter { !existingIds.contains($0.id) }
+        if !newCategories.isEmpty {
+            try await persistence.saveCategories(newCategories)
         }
         
         return categories

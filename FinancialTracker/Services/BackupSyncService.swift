@@ -128,7 +128,7 @@ actor BackupSyncService: BackupSyncServiceProtocol {
             comment: transaction.comment
         )
         
-        let endpoint = Endpoint(path: "/transactions/\(transaction.id)", method: .put)
+        let endpoint = Endpoint(path: "/transactions/\(transaction.id)", method: .patch)
         
         struct Body: Encodable {
             let accountId: Int
@@ -177,7 +177,7 @@ actor BackupSyncService: BackupSyncServiceProtocol {
             currency: account.currency.code
         )
         
-        let endpoint = Endpoint(path: "/accounts/\(account.id)", method: .put)
+        let endpoint = Endpoint(path: "/accounts/\(account.id)", method: .patch)
         let _: BankAccountDTO = try await networkClient.request(endpoint, body: body, encoder: JSONCoding.encoder)
         try await backup.removeBackup(entityType: "BankAccount", entityId: String(account.id))
     }

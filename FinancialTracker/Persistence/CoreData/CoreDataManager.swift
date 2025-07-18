@@ -34,13 +34,13 @@ final class CoreDataManager {
         container.loadPersistentStores { [weak self] _, error in
             if let error = error {
                 #if DEBUG
-                print("❌ Failed to load Core Data stack: \(error)")
-                print("⚠️  CoreData functionality will be disabled. Using SwiftData only.")
+                print("Failed to load Core Data stack: \(error)")
+                print("CoreData functionality will be disabled. Using SwiftData only.")
                 #endif
                 self?._coreDataAvailable = false
             } else {
                 #if DEBUG
-                print("✅ CoreData stack loaded successfully")
+                print("CoreData stack loaded successfully")
                 #endif
                 self?._coreDataAvailable = true
             }
