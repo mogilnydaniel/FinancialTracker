@@ -1,8 +1,13 @@
 import Foundation
 
 extension Date {
-    static let today = Date()
-    static let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: today) ?? today
+    static var today: Date {
+        Date()
+    }
+    
+    static var oneMonthAgo: Date {
+        Calendar.current.date(byAdding: .month, value: -1, to: today) ?? today
+    }
     
     var startOfDay: Date {
         Calendar.current.startOfDay(for: self)

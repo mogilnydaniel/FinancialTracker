@@ -32,33 +32,8 @@ final class BankAccountViewModel {
     }
 
     @objc private func handleTransactionChange(_ n: Notification) {
-        guard let transaction = (n.userInfo?["transaction"] as? Transaction) ?? (n.userInfo?["removedTransaction"] as? Transaction) else { return }
-
-        guard var acc = account else { return }
-
-        let delta: Decimal
-        if n.userInfo?["removedTransaction"] != nil {
-            delta = -transaction.amount
-        } else if let old = n.userInfo?["oldTransaction"] as? Transaction {
-            delta = transaction.amount - old.amount
-        } else {
-            delta = transaction.amount
-        }
-
-        acc = BankAccount(
-            id: acc.id,
-            userId: acc.userId,
-            name: acc.name,
-            balance: acc.balance + delta,
-            currency: acc.currency,
-            creationDate: acc.creationDate,
-            modificationDate: Date()
-        )
-        account = acc
-        balanceText = Self.displayFormatter.string(for: acc.balance) ?? balanceText
-
-        Task { [service] in
-            _ = try? await service.updateBankAccount(acc)
+        Task { [weak self] in
+            await self?.refresh()
         }
     }
     
@@ -74,7 +49,7 @@ final class BankAccountViewModel {
                 state = .loaded
             }
         } catch {
-            await MainActor.run { state = .failed(error) }
+            await MainActor.run { state = .failed(ErrorMapper.wrap(error)) }
         }
     }
     
@@ -88,7 +63,7 @@ final class BankAccountViewModel {
                 state = .loaded
             }
         } catch {
-            await MainActor.run { state = .failed(error) }
+            await MainActor.run { state = .failed(ErrorMapper.wrap(error)) }
         }
     }
     
@@ -125,7 +100,7 @@ final class BankAccountViewModel {
                 }
             } catch {
                 await MainActor.run {
-                    state = .failed(error)
+                    state = .failed(ErrorMapper.wrap(error))
                 }
             }
         }

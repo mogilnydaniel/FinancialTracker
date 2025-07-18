@@ -59,7 +59,7 @@ final class AnalysisViewModel: ObservableObject {
                 process(summary: summary)
                 state = .loaded
             } catch {
-                state = .failed(error)
+                state = .failed(ErrorMapper.wrap(error))
             }
         }
     }

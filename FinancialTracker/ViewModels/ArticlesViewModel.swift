@@ -32,7 +32,7 @@ final class ArticlesViewModel {
             filtered = articles
             state = .loaded
         } catch {
-            state = .failed(error)
+            state = .failed(ErrorMapper.wrap(error))
             articles = []
             filtered = []
         }

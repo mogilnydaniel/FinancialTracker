@@ -32,34 +32,64 @@ final class TransactionsListViewModel: ObservableObject, TransactionsListProtoco
     ) {
         self.direction = direction
         self.repository = repository
+        
+        #if DEBUG
+        print("TransactionsListViewModel init for \(direction)")
+        #endif
+    }
+    
+    deinit {
+        #if DEBUG
+        print("TransactionsListViewModel deinit for \(direction)")
+        #endif
     }
     
     func refresh() async {
-        guard state != .loading else { return }
-        
-        let showLoading = (state != .loaded)
-        if showLoading {
-            state = .loading
-        }
-        do {
-            let result = try await fetchLatest()
-            apply(result, to: self)
+        loadTask?.cancel()
+        loadTask = Task {
+            guard state != .loading else { return }
+            
+            #if DEBUG
+            let startTime = Date()
+            print("Starting refresh for \(direction) transactions...")
+            #endif
+            
+            let showLoading = (state != .loaded)
             if showLoading {
-                state = .loaded
+                state = .loading
             }
-        } catch {
-            if showLoading {
-                state = .failed(error)
-            } else {
-                errorMessage = error.localizedDescription
+            do {
+                let result = try await fetchLatest()
+                guard !Task.isCancelled else { return }
+                apply(result, to: self)
+                if showLoading {
+                    state = .loaded
+                }
+                
+                #if DEBUG
+                let elapsed = Date().timeIntervalSince(startTime)
+                print("Loaded \(result.transactions.count) \(direction) transactions in \(String(format: "%.2f", elapsed))s")
+                #endif
+            } catch is CancellationError {
+                return
+            } catch {
+                if showLoading {
+                    state = .failed(ErrorMapper.wrap(error))
+                } else {
+                    errorMessage = ErrorMapper.message(for: error)
+                }
+                
+                #if DEBUG
+                print("Failed to load \(direction) transactions: \(error)")
+                #endif
             }
         }
+        await loadTask?.value
     }
     
     func loadInitialData() async {
-        if state == .idle {
-            await refresh()
-        }
+        guard state == .idle else { return }
+        await refresh()
     }
     
     func refreshTrigger() {
@@ -81,9 +111,20 @@ final class TransactionsListViewModel: ObservableObject, TransactionsListProtoco
     }
     
     func fetchLatest() async throws -> TransactionsSummary {
-        try await repository.getTransactionsSummary(
-            from: Date.today.startOfDay,
-            to: Date.today.endOfDay,
+        let today = Date.today
+        let endDate = today.endOfDay
+        let startDate = today.startOfDay
+        
+        #if DEBUG
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        print("fetchLatest for \(direction): from \(formatter.string(from: startDate)) to \(formatter.string(from: endDate))")
+        #endif
+        
+        return try await repository.getTransactionsSummary(
+            from: startDate,
+            to: endDate,
             direction: direction
         )
     }

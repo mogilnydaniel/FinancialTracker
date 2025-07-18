@@ -8,7 +8,11 @@ struct TransactionsListViewModelFactory: TransactionsListViewModelFactoryProtoco
     unowned let di: DIContainer
 
     @MainActor func makeTransactionsListViewModel(for direction: Category.Direction) -> TransactionsListViewModel {
-        TransactionsListViewModel(
+        #if DEBUG
+        print("Creating TransactionsListViewModel for \(direction)")
+        #endif
+        
+        return TransactionsListViewModel(
             direction: direction,
             repository: di.transactionsRepository
         )

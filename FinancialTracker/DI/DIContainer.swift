@@ -35,7 +35,7 @@ final class DIContainer {
     }()
 
     lazy var articlesService: any ArticlesServiceProtocol = {
-        MockArticlesService(categoriesService: self.categoriesService)
+        ArticlesService(categoriesService: self.categoriesService)
     }()
 
     init(
@@ -48,17 +48,19 @@ final class DIContainer {
         self.transactionsService = transactionsService
     }
 
-    static let production: DIContainer = {
-        DIContainer(
-            categoriesService: MockCategoriesService(),
-            bankAccountsService: MockBankAccountsService(),
-            transactionsService: MockTransactionsService()
-        )
-    }()
+
 }
 
 private struct DIContainerKey: EnvironmentKey {
-    static let defaultValue: DIContainer = .production
+    static let defaultValue: DIContainer = {
+        let token = "WNKoU01o5koxFvqP6882dwjR"
+        let client = NetworkClient(token: token)
+        return DIContainer(
+            categoriesService: NetworkCategoriesService(client: client),
+            bankAccountsService: NetworkAccountsService(client: client),
+            transactionsService: NetworkTransactionsService(client: client)
+        )
+    }()
 }
 
 extension EnvironmentValues {

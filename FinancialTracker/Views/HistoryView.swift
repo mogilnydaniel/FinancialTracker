@@ -199,14 +199,6 @@ struct HistoryView: View {
 
 #Preview {
     NavigationStack {
-        HistoryView(
-            viewModel: HistoryViewModel(
-                direction: .income,
-                repository: TransactionsRepository(
-                    transactionsService: MockTransactionsService(),
-                    categoriesService: MockCategoriesService()
-                )
-            )
-        )
+        Text("История")
     }
 }

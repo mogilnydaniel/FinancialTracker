@@ -43,18 +43,38 @@ final class TransactionsRepository: TransactionsRepositoryProtocol {
         let normalizedStart = startDate.startOfDay
         let normalizedEnd = endDate.endOfDay
 
+        #if DEBUG
+        print("Fetching \(direction) transactions from \(normalizedStart) to \(normalizedEnd)")
+        let startTime = Date()
+        #endif
+
         async let fetchedTransactions = transactionsService.getTransactions(
             from: normalizedStart,
             to: normalizedEnd,
             direction: direction
         )
         
-        async let fetchedCategories = categoriesService.getCategories()
+        async let fetchedCategories = categoriesService.getCategories(direction: direction)
         
-        let (transactions, categories) = try await (fetchedTransactions, fetchedCategories)
+        let (allTransactions, categories) = try await (fetchedTransactions, fetchedCategories)
+        
+        #if DEBUG
+        let fetchTime = Date().timeIntervalSince(startTime)
+        print("Fetched \(allTransactions.count) transactions and \(categories.count) categories in \(String(format: "%.2f", fetchTime))s")
+        #endif
         
         let categoriesDict = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
+        
+        let transactions = allTransactions.filter { transaction in
+            guard let category = categoriesDict[transaction.categoryId] else { return false }
+            return category.direction == direction
+        }
+        
         let totalAmount = transactions.reduce(Decimal.zero) { $0 + $1.amount }
+        
+        #if DEBUG
+        print("Filtered to \(transactions.count) \(direction) transactions, total: \(totalAmount)")
+        #endif
         
         return TransactionsSummary(
             transactions: transactions,
