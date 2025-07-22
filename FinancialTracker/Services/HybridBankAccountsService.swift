@@ -94,11 +94,11 @@ actor HybridBankAccountsService: BankAccountsServiceProtocol {
             currency: account.currency.code
         )
         
-        let endpoint = Endpoint(path: "/accounts/\(account.id)", method: .patch)
+        let endpoint = Endpoint(path: "/accounts/\(account.id)", method: .put)
         let dto: BankAccountDTO = try await networkClient.request(endpoint, body: body, encoder: JSONCoding.encoder)
         
         guard let updated = BankAccountDTOToDomainConverter.convert(dto) else {
-            throw NSError(domain: "ConversionError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert BankAccountDTO to BankAccount"])
+            throw NSError(domain: "ConversionError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Ошибка обработки данных"])
         }
         
         return updated
@@ -109,7 +109,7 @@ actor HybridBankAccountsService: BankAccountsServiceProtocol {
         let dto: BankAccountDTO = try await networkClient.request(endpoint, body: Optional<String>.none)
         
         guard let account = BankAccountDTOToDomainConverter.convert(dto) else {
-            throw NSError(domain: "ConversionError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert BankAccountDTO to BankAccount"])
+            throw NSError(domain: "ConversionError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Ошибка обработки данных"])
         }
         
         return try await persistence.saveBankAccount(account)

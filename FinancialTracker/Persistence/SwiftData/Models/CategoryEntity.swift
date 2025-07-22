@@ -7,16 +7,7 @@ final class CategoryEntity {
     @Attribute(.unique) var id: Int
     var name: String
     var icon: String
-    private var directionRawValue: String
-    
-    var direction: Category.Direction {
-        get {
-            return Category.Direction(rawValue: directionRawValue) ?? .outcome
-        }
-        set {
-            directionRawValue = newValue.rawValue
-        }
-    }
+    var direction: String
     
     init(
         id: Int,
@@ -27,7 +18,7 @@ final class CategoryEntity {
         self.id = id
         self.name = name
         self.icon = icon
-        self.directionRawValue = direction.rawValue
+        self.direction = direction.rawValue
     }
     
     convenience init(from category: Category) {
@@ -44,7 +35,7 @@ final class CategoryEntity {
             id: id,
             name: name,
             icon: icon,
-            direction: direction
+            direction: Category.Direction(rawValue: direction) ?? .outcome
         )
     }
     
@@ -59,7 +50,7 @@ final class CategoryEntity {
     func update(from category: Category) {
         self.name = category.name
         self.icon = category.icon
-        self.direction = category.direction
+        self.direction = category.direction.rawValue
     }
 }
 

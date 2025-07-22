@@ -153,6 +153,7 @@ final class TransactionEditorViewModel: ObservableObject {
         
         do {
             let account = try await bankAccountsService.getBankAccount()
+            
             let finalAmount = amountValue
             
             let trimmedComment = comment.trimmingCharacters(in: .whitespacesAndNewlines)

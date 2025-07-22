@@ -82,11 +82,11 @@ final class DataMigrationService: DataMigrationProtocol {
             try await coreDataBackups.createBackup(backup as! BackupItem<Transaction>)
         }
         
-        print("✅ Migration completed: SwiftData → CoreData")
+        print("Migration completed: SwiftData → CoreData")
     }
     
     func migrateFromCoreDataToSwiftData() async throws {
-        print("🔄 Starting migration: CoreData → SwiftData")
+        print("Starting migration: CoreData → SwiftData")
         
         let swiftDataTransactions = try swiftDataManager.createTransactionsPersistence()
         let swiftDataAccounts = try swiftDataManager.createBankAccountsPersistence()
@@ -124,16 +124,16 @@ final class DataMigrationService: DataMigrationProtocol {
             try await swiftDataBackups.createBackup(backup)
         }
         
-        print("✅ Migration completed: CoreData → SwiftData")
+        print("Migration completed: CoreData → SwiftData")
     }
     
     func clearSwiftDataStorage() async throws {
-        print("🗑️ Clearing SwiftData storage")
+        print("Clearing SwiftData storage")
         try swiftDataManager.resetDatabase()
     }
     
     func clearCoreDataStorage() async throws {
-        print("🗑️ Clearing CoreData storage")
+        print("Clearing CoreData storage")
         try coreDataManager.resetDatabase()
     }
     
