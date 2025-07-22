@@ -65,9 +65,23 @@ final class TransactionsRepository: TransactionsRepositoryProtocol {
         
         let categoriesDict = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
         
-        let transactions = allTransactions.filter { transaction in
-            guard let category = categoriesDict[transaction.categoryId] else { return false }
-            return category.direction == direction
+        let transactions: [Transaction] = allTransactions.compactMap { transaction in
+            guard let category = categoriesDict[transaction.categoryId] else { return nil }
+            guard category.direction == direction else { return nil }
+            
+            
+            let adjustedAmount = category.direction == .outcome ? -transaction.amount : transaction.amount
+            
+            return Transaction(
+                id: transaction.id,
+                accountId: transaction.accountId,
+                categoryId: transaction.categoryId,
+                amount: adjustedAmount,
+                transactionDate: transaction.transactionDate,
+                comment: transaction.comment,
+                creationDate: transaction.creationDate,
+                modificationDate: transaction.modificationDate
+            )
         }
         
         let totalAmount = transactions.reduce(Decimal.zero) { $0 + $1.amount }

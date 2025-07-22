@@ -7,24 +7,12 @@ final class TransactionEntity {
     @Attribute(.unique) var id: Int
     var accountId: Int
     var categoryId: Int
-    
-    private var amountString: String
-    
+    var amountString: String
     var transactionDate: Date
     var comment: String?
     var creationDate: Date
     var modificationDate: Date
 
-    var amount: Decimal {
-        get {
-            return Decimal(string: amountString) ?? 0
-        }
-        set {
-            amountString = newValue.description
-        }
-    }
-
-    
     init(
         id: Int,
         accountId: Int,
@@ -63,7 +51,7 @@ final class TransactionEntity {
             id: id,
             accountId: accountId,
             categoryId: categoryId,
-            amount: amount,
+            amount: Decimal(string: amountString) ?? 0,
             transactionDate: transactionDate,
             comment: comment,
             creationDate: creationDate,
@@ -74,7 +62,7 @@ final class TransactionEntity {
     func update(from transaction: Transaction) {
         self.accountId = transaction.accountId
         self.categoryId = transaction.categoryId
-        self.amount = transaction.amount
+        self.amountString = transaction.amount.description
         self.transactionDate = transaction.transactionDate
         self.comment = transaction.comment
         self.modificationDate = transaction.modificationDate

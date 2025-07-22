@@ -122,7 +122,7 @@ extension SettingsService {
         #if DEBUG
         guard isDebugEnabled else { return }
         
-        print("📱 Settings Service - Current Configuration:")
+        print("Settings Service - Current Configuration:")
         print("   Storage Type: \(storageType.displayName)")
         print("   Debug Enabled: \(isDebugEnabled)")
         print("   Auto Sync Enabled: \(isAutoSyncEnabled)")

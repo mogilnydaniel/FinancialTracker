@@ -21,11 +21,15 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
         let accountId = 1
         
         do {
-            return try await fetchFromNetwork(accountId: accountId, startDate: startDate, endDate: endDate)
+            
+            
+            let allTransactions = try await fetchFromNetwork(accountId: accountId, startDate: startDate, endDate: endDate)
+            return allTransactions
         } catch {
             if let cachedTransactions = try? await cache.load() {
-                return cachedTransactions.filter {
-                    $0.transactionDate >= startDate && $0.transactionDate <= endDate
+                return cachedTransactions.filter { transaction in
+                    let isInPeriod = transaction.transactionDate >= startDate && transaction.transactionDate <= endDate
+                    return isInPeriod
                 }
             }
             throw error
@@ -95,7 +99,7 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
         let endpoint = Endpoint(path: "/transactions", method: .post)
         let dto: TransactionDTO = try await client.request(endpoint, body: body, encoder: JSONCoding.encoder)
         guard let transaction = TransactionDTOToDomainConverter.convert(dto) else {
-            throw NSError(domain: "ConversionError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert TransactionDTO to Transaction"])
+            throw NSError(domain: "ConversionError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Ошибка обработки данных"])
         }
         return transaction
     }
@@ -139,20 +143,29 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
             comment: request.comment 
         )
         
-        let endpoint = Endpoint(path: "/transactions/\(id)", method: .patch)
+        let endpoint = Endpoint(path: "/transactions/\(id)", method: .put)
         let dto: TransactionDTO = try await client.request(endpoint, body: body, encoder: JSONCoding.encoder)
         guard let transaction = TransactionDTOToDomainConverter.convert(dto) else {
-            throw NSError(domain: "ConversionError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert TransactionDTO to Transaction"])
+            throw NSError(domain: "ConversionError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Ошибка обработки данных"])
         }
         return transaction
     }
  
     func deleteTransaction(withId id: Int) async throws -> Transaction {
         let endpoint = Endpoint(path: "/transactions/\(id)", method: .delete)
-        let dto: TransactionDTO = try await client.request(endpoint, body: Optional<Int>.none)
-        guard let transaction = TransactionDTOToDomainConverter.convert(dto) else {
-            throw NSError(domain: "ConversionError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert TransactionDTO to Transaction"])
-        }
-        return transaction
+        let _: Empty = try await client.request(endpoint, body: Optional<Int>.none)
+        
+        
+        
+        return Transaction(
+            id: id,
+            accountId: 1,
+            categoryId: 1,
+            amount: 0,
+            transactionDate: Date(),
+            comment: "Deleted",
+            creationDate: Date(),
+            modificationDate: Date()
+        )
     }
 }

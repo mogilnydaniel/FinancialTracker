@@ -20,7 +20,7 @@ actor SwiftDataCategoriesPersistence: CategoriesPersistenceProtocol {
     func getCategories(direction: Category.Direction) async throws -> [Category] {
         let directionString = direction.rawValue
         let predicate = #Predicate<CategoryEntity> { entity in
-            entity.direction.rawValue == directionString
+            entity.direction == directionString
         }
         
         let descriptor = FetchDescriptor<CategoryEntity>(

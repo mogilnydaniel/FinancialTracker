@@ -5,6 +5,7 @@ struct Empty: Codable {}
 enum HTTPMethod: String {
     case get = "GET"
     case post = "POST"
+    case put = "PUT"
     case patch = "PATCH"
     case delete = "DELETE"
 }
@@ -31,11 +32,11 @@ enum NetworkError: LocalizedError {
         switch self {
         case .invalidURL:
             return "Некорректный адрес сервера"
-        case .http(let code, let data):
+        case .http(_, let data):
             if let errorResponse = String(data: data, encoding: .utf8) {
-                return "Ошибка сервера \(code): \(errorResponse)"
+                return "Ошибка сервера: \(errorResponse)"
             }
-            return "Ошибка сервера \(code)"
+            return "Ошибка сервера"
         case .encoding:
             return "Не удалось подготовить запрос"
         case .decoding:

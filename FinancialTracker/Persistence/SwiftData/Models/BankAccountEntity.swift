@@ -7,33 +7,11 @@ final class BankAccountEntity {
     @Attribute(.unique) var id: Int
     var userId: Int
     var name: String
-    
-    private var balanceString: String
-    
-    private var currencyCode: String
-    
+    var balanceString: String
+    var currencyCode: String
     var creationDate: Date
     var modificationDate: Date
-    
-    var balance: Decimal {
-        get {
-            return Decimal(string: balanceString) ?? 0
-        }
-        set {
-            balanceString = newValue.description
-        }
-    }
-    
-    var currency: BankAccount.Currency {
-        get {
-            return BankAccount.Currency(code: currencyCode)
-        }
-        set {
-            currencyCode = newValue.code
-        }
-    }
 
-    
     init(
         id: Int,
         userId: Int,
@@ -69,8 +47,8 @@ final class BankAccountEntity {
             id: id,
             userId: userId,
             name: name,
-            balance: balance,
-            currency: currency,
+            balance: Decimal(string: balanceString) ?? 0,
+            currency: BankAccount.Currency(code: currencyCode),
             creationDate: creationDate,
             modificationDate: modificationDate
         )
@@ -87,8 +65,8 @@ final class BankAccountEntity {
     func update(from bankAccount: BankAccount) {
         self.userId = bankAccount.userId
         self.name = bankAccount.name
-        self.balance = bankAccount.balance
-        self.currency = bankAccount.currency
+        self.balanceString = bankAccount.balance.description
+        self.currencyCode = bankAccount.currency.code
         self.modificationDate = bankAccount.modificationDate
     }
 }

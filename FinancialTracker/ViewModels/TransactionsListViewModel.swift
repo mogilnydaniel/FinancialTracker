@@ -33,15 +33,10 @@ final class TransactionsListViewModel: ObservableObject, TransactionsListProtoco
         self.direction = direction
         self.repository = repository
         
-        #if DEBUG
-        print("TransactionsListViewModel init for \(direction)")
-        #endif
+
     }
     
     deinit {
-        #if DEBUG
-        print("TransactionsListViewModel deinit for \(direction)")
-        #endif
     }
     
     func refresh() async {
@@ -51,7 +46,6 @@ final class TransactionsListViewModel: ObservableObject, TransactionsListProtoco
             
             #if DEBUG
             let startTime = Date()
-            print("Starting refresh for \(direction) transactions...")
             #endif
             
             let showLoading = (state != .loaded)
@@ -113,7 +107,7 @@ final class TransactionsListViewModel: ObservableObject, TransactionsListProtoco
     func fetchLatest() async throws -> TransactionsSummary {
         let today = Date.today
         let endDate = today.endOfDay
-        let startDate = today.startOfDay
+        let startDate = Calendar.current.date(byAdding: .day, value: -30, to: today)?.startOfDay ?? today.startOfDay
         
         #if DEBUG
         let formatter = DateFormatter()
