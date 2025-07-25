@@ -1,5 +1,6 @@
 import UIKit
 import Combine
+import PieChart
 
 final class AnalysisViewController: UIViewController {
     private let viewModel: AnalysisViewModel
@@ -146,6 +147,10 @@ final class AnalysisViewController: UIViewController {
             cell.accessories = [.disclosureIndicator()]
         }
         
+        let pieChartCellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, [Entity]> { cell, indexPath, entities in
+            cell.contentConfiguration = PieChartCellContentConfiguration(entities: entities)
+        }
+        
         dataSource = UICollectionViewDiffableDataSource<AnalysisScreenSection, AnalysisScreenItem>(collectionView: collectionView) { collectionView, indexPath, item in
             switch item {
             case .date(let type, _):
@@ -154,6 +159,8 @@ final class AnalysisViewController: UIViewController {
                 return collectionView.dequeueConfiguredReusableCell(using: sumCellRegistration, for: indexPath, item: amount)
             case .sort(let sortType):
                 return collectionView.dequeueConfiguredReusableCell(using: sortCellRegistration, for: indexPath, item: sortType)
+            case .chart(let entities):
+                return collectionView.dequeueConfiguredReusableCell(using: pieChartCellRegistration, for: indexPath, item: entities)
             case .operation(let operationItem):
                 return collectionView.dequeueConfiguredReusableCell(using: operationCellRegistration, for: indexPath, item: operationItem)
             }
@@ -240,6 +247,8 @@ final class AnalysisViewController: UIViewController {
     }
 
     private func applySnapshot(operations: [AnalysisOperationItem], total: Decimal, startDate: Date, endDate: Date) {
+        print("📊 AnalysisViewController.applySnapshot called with \(operations.count) operations")
+        
         var snapshot = NSDiffableDataSourceSnapshot<AnalysisScreenSection, AnalysisScreenItem>()
         
         snapshot.appendSections([.info])
@@ -252,8 +261,19 @@ final class AnalysisViewController: UIViewController {
         snapshot.appendItems(infoItems, toSection: .info)
         
         if !operations.isEmpty {
+            let pieChartEntities = operations.pieChartEntities
+            print("📊 Creating pie chart with \(pieChartEntities.count) entities:")
+            for entity in pieChartEntities {
+                print("   - \(entity.label): \(entity.value)")
+            }
+            
+            snapshot.appendSections([.chart])
+            snapshot.appendItems([.chart(pieChartEntities)], toSection: .chart)
+            
             snapshot.appendSections([.operations])
             snapshot.appendItems(operations.map { .operation($0) }, toSection: .operations)
+        } else {
+            print("📊 No operations, skipping pie chart")
         }
         
         dataSource.apply(snapshot, animatingDifferences: true)
@@ -275,6 +295,9 @@ final class AnalysisViewController: UIViewController {
             target: self,
             action: #selector(goBack)
         )
+        
+        backButton.tintColor = UIColor(named: "SecondaryAccentColor")
+        backTitle.tintColor = UIColor(named: "SecondaryAccentColor")
         
         navigationItem.leftBarButtonItems = [backButton, backTitle]
         

@@ -1,9 +1,9 @@
 import Foundation
+import PieChart
 
 enum AnalysisScreenSection: Hashable {
     case info
-    case sort
-    case total
+    case chart
     case operations
 }
 
@@ -21,5 +21,6 @@ enum AnalysisScreenItem: Hashable {
     case date(type: DateType, date: Date)
     case sum(Decimal)
     case sort(SortType)
+    case chart([Entity])
     case operation(AnalysisOperationItem)
 } 

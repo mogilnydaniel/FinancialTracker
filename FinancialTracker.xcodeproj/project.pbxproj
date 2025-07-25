@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C0A669912E323CF80015D747 /* PieChart in Frameworks */ = {isa = PBXBuildFile; productRef = C095C8012DF60001002953F0 /* PieChart */; };
+		C0A66E382E3388110015D747 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = C0LOTTIE12DF60001002953F0 /* Lottie */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		C095C7EC2DF5F37E002953F0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -39,6 +44,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0A66E382E3388110015D747 /* Lottie in Frameworks */,
+				C0A669912E323CF80015D747 /* PieChart in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +97,8 @@
 			);
 			name = FinancialTracker;
 			packageProductDependencies = (
+				C095C8012DF60001002953F0 /* PieChart */,
+				C0LOTTIE12DF60001002953F0 /* Lottie */,
 			);
 			productName = FinancialTracker;
 			productReference = C095C7DE2DF5F37D002953F0 /* FinancialTracker.app */;
@@ -148,6 +157,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				C00F09AE2E159B59005BFC84 /* XCRemoteSwiftPackageReference "divkit-ios" */,
+				C095C8002DF60000002953F0 /* XCLocalSwiftPackageReference "Utilities" */,
+				C0LOTTIE2E159B59005BFC84 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C095C7DF2DF5F37D002953F0 /* Products */;
@@ -345,7 +356,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mogilnydaniel.FinancialTracker3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mogilnydaniel.FinancialTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -374,7 +385,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mogilnydaniel.FinancialTracker3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mogilnydaniel.FinancialTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -452,6 +463,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		C095C8002DF60000002953F0 /* XCLocalSwiftPackageReference "Utilities" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Utilities;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		C00F09AE2E159B59005BFC84 /* XCRemoteSwiftPackageReference "divkit-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -461,7 +479,28 @@
 				minimumVersion = 32.6.0;
 			};
 		};
+		C0LOTTIE2E159B59005BFC84 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C095C8012DF60001002953F0 /* PieChart */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C095C8002DF60000002953F0 /* XCLocalSwiftPackageReference "Utilities" */;
+			productName = PieChart;
+		};
+		C0LOTTIE12DF60001002953F0 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C0LOTTIE2E159B59005BFC84 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C095C7D62DF5F37D002953F0 /* Project object */;
 }

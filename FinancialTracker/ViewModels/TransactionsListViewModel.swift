@@ -107,7 +107,7 @@ final class TransactionsListViewModel: ObservableObject, TransactionsListProtoco
     func fetchLatest() async throws -> TransactionsSummary {
         let today = Date.today
         let endDate = today.endOfDay
-        let startDate = Calendar.current.date(byAdding: .day, value: -30, to: today)?.startOfDay ?? today.startOfDay
+        let startDate = today.startOfDay
         
         #if DEBUG
         let formatter = DateFormatter()

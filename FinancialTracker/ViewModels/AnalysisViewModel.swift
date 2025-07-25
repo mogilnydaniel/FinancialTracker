@@ -102,7 +102,7 @@ final class AnalysisViewModel: ObservableObject {
     }
 }
 
-fileprivate extension Decimal {
+extension Decimal {
     var doubleValue: Double {
         return NSDecimalNumber(decimal: self).doubleValue
     }

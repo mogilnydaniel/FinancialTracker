@@ -96,12 +96,13 @@ actor BackupSyncService: BackupSyncServiceProtocol {
             let categoryId: Int
             let amount: String
             let transactionDate: String
-            let comment: String?
+            let comment: String
         }
         
         let formatter = ISO8601DateFormatter()
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
+        numberFormatter.usesGroupingSeparator = false
         numberFormatter.minimumFractionDigits = 2
         numberFormatter.maximumFractionDigits = 2
         numberFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -112,7 +113,7 @@ actor BackupSyncService: BackupSyncServiceProtocol {
             categoryId: request.categoryId,
             amount: amountString,
             transactionDate: formatter.string(from: request.transactionDate),
-            comment: request.comment
+            comment: request.comment ?? ""
         )
         
         let _: TransactionDTO = try await networkClient.request(endpoint, body: body, encoder: JSONCoding.encoder)
@@ -135,12 +136,13 @@ actor BackupSyncService: BackupSyncServiceProtocol {
             let categoryId: Int
             let amount: String
             let transactionDate: String
-            let comment: String?
+            let comment: String
         }
         
         let formatter = ISO8601DateFormatter()
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
+        numberFormatter.usesGroupingSeparator = false
         numberFormatter.minimumFractionDigits = 2
         numberFormatter.maximumFractionDigits = 2
         numberFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -151,7 +153,7 @@ actor BackupSyncService: BackupSyncServiceProtocol {
             categoryId: request.categoryId,
             amount: amountString,
             transactionDate: formatter.string(from: request.transactionDate),
-            comment: request.comment
+            comment: request.comment ?? ""
         )
         
         let _: TransactionDTO = try await networkClient.request(endpoint, body: body, encoder: JSONCoding.encoder)

@@ -204,12 +204,13 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
             let categoryId: Int
             let amount: String
             let transactionDate: String
-            let comment: String?
+            let comment: String
         }
         
         let formatter = ISO8601DateFormatter()
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
+        numberFormatter.usesGroupingSeparator = false
         numberFormatter.minimumFractionDigits = 2
         numberFormatter.maximumFractionDigits = 2
         numberFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -221,7 +222,7 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
             categoryId: request.categoryId,
             amount: amountString,
             transactionDate: formatter.string(from: request.transactionDate),
-            comment: request.comment
+            comment: request.comment ?? ""
         )
         
         #if DEBUG
@@ -237,7 +238,7 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
         let dto: TransactionDTO = try await networkClient.request(endpoint, body: body, encoder: JSONCoding.encoder)
         
         #if DEBUG
-        print("Received response for transaction creation: ID \(dto.id)")
+
         #endif
         
         guard let transaction = TransactionDTOToDomainConverter.convert(dto) else {
@@ -253,12 +254,13 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
             let categoryId: Int
             let amount: String
             let transactionDate: String
-            let comment: String?
+            let comment: String
         }
         
         let formatter = ISO8601DateFormatter()
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
+        numberFormatter.usesGroupingSeparator = false
         numberFormatter.minimumFractionDigits = 2
         numberFormatter.maximumFractionDigits = 2
         numberFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -270,7 +272,7 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
             categoryId: request.categoryId,
             amount: amountString,
             transactionDate: formatter.string(from: request.transactionDate),
-            comment: request.comment
+            comment: request.comment ?? ""
         )
         
         #if DEBUG
@@ -286,7 +288,7 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
         let dto: TransactionDTO = try await networkClient.request(endpoint, body: body, encoder: JSONCoding.encoder)
         
         #if DEBUG
-        print("Received response for transaction update: ID \(dto.id)")
+
         #endif
         
         guard let transaction = TransactionDTOToDomainConverter.convert(dto) else {
@@ -307,7 +309,7 @@ actor HybridTransactionsService: TransactionsServiceProtocol {
             
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy-MM-dd"
-            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.locale = Locale(identifier: "ru_RU")
             formatter.timeZone = TimeZone(secondsFromGMT: 0)
             
             let query = [
