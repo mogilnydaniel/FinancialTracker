@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 final class DIContainer {
-    static let apiToken = "<YOUR TOKEN>"
+    static let apiToken = "WNKoU01o5koxFvqP6882dwjR"
     
     let categoriesService: any CategoriesServiceProtocol
     let bankAccountsService: any BankAccountsServiceProtocol

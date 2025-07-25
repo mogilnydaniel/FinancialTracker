@@ -9,6 +9,7 @@ final class BankAccountViewModel {
     }
     
     private let service: any BankAccountsServiceProtocol
+    private let transactionsService: any TransactionsServiceProtocol
     
     var account: BankAccount?
     var state: LoadingState = .idle
@@ -16,6 +17,20 @@ final class BankAccountViewModel {
     var balanceText: String = ""
     var selectedCurrency: BankAccount.Currency = .rub
     var isBalanceHidden: Bool = false
+    
+    var selectedPeriod: ChartTimePeriod = .days {
+        didSet {
+            guard oldValue != selectedPeriod else { return }
+            clearChartSelection()
+            Task {
+                await updateChartData()
+            }
+        }
+    }
+    
+    var chartData: [BalanceChartDataPoint] = []
+    var chartDateLabels: (start: Date, mid: Date, end: Date)? = nil
+    var selectedDataPoint: BalanceChartDataPoint? = nil
     
     private enum Const {
         static let maxFractionDigits = 2
@@ -25,8 +40,9 @@ final class BankAccountViewModel {
         static let decimalSeparatorDot = "."
     }
     
-    init(service: any BankAccountsServiceProtocol) {
+    init(service: any BankAccountsServiceProtocol, transactionsService: any TransactionsServiceProtocol) {
         self.service = service
+        self.transactionsService = transactionsService
 
         NotificationCenter.default.addObserver(self, selector: #selector(handleTransactionChange(_:)), name: .transactionDidChange, object: nil)
     }
@@ -34,6 +50,7 @@ final class BankAccountViewModel {
     @objc private func handleTransactionChange(_ n: Notification) {
         Task { [weak self] in
             await self?.refresh()
+            await self?.updateChartData()
         }
     }
     
@@ -48,6 +65,7 @@ final class BankAccountViewModel {
                 selectedCurrency = acc.currency
                 state = .loaded
             }
+            await updateChartData()
         } catch {
             await MainActor.run { state = .failed(ErrorMapper.wrap(error)) }
         }
@@ -62,8 +80,147 @@ final class BankAccountViewModel {
                 selectedCurrency = acc.currency
                 state = .loaded
             }
+            await updateChartData()
         } catch {
             await MainActor.run { state = .failed(ErrorMapper.wrap(error)) }
+        }
+    }
+    
+    func clearChartSelection() {
+        selectedDataPoint = nil
+    }
+    
+    @MainActor
+    private func updateChartData() async {
+        guard let account = account else { 
+
+            return 
+        }
+        
+
+        
+        switch selectedPeriod {
+        case .days:
+            await calculateDailyBalanceData(accountId: account.id)
+        case .months:
+            await calculateMonthlyBalanceData(accountId: account.id)
+        }
+        
+        print("DEBUG: Chart data updated, count: \(chartData.count)")
+    }
+    
+    private func calculateDailyBalanceData(accountId: Int) async {
+        let calendar = Calendar.current
+        let endDate = Date()
+        guard let startDate = calendar.date(byAdding: .day, value: -29, to: endDate) else { return }
+        
+        do {
+            async let incomeTransactions = transactionsService.getTransactions(
+                from: startDate,
+                to: endDate,
+                direction: .income
+            )
+            
+            async let expenseTransactions = transactionsService.getTransactions(
+                from: startDate,
+                to: endDate,
+                direction: .outcome
+            )
+            
+            let (incomes, expenses) = try await (incomeTransactions, expenseTransactions)
+            let allTransactions = incomes + expenses
+            
+            let accountTransactions = allTransactions.filter { $0.accountId == accountId }
+            
+            let groupedByDay = Dictionary(grouping: accountTransactions) { 
+                calendar.startOfDay(for: $0.transactionDate) 
+            }
+            
+            let dailyChanges: [BalanceChartDataPoint] = (0..<30).compactMap { dayOffset in
+                guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: endDate) else { return nil }
+                let dayStart = calendar.startOfDay(for: date)
+                let transactionsForDay = groupedByDay[dayStart] ?? []
+                
+                let dailyTotal = transactionsForDay.reduce(Decimal.zero) { partialResult, transaction in
+                    return partialResult + transaction.amount
+                }
+                
+                return BalanceChartDataPoint(date: dayStart, amount: dailyTotal)
+            }
+            
+            await MainActor.run {
+                self.chartData = dailyChanges.reversed()
+                
+                if let firstDate = self.chartData.first?.date,
+                   let midDate = calendar.date(byAdding: .day, value: 14, to: firstDate) {
+                    self.chartDateLabels = (start: firstDate, mid: midDate, end: endDate)
+                }
+            }
+            
+        } catch {
+            await MainActor.run {
+                self.chartData = []
+                self.chartDateLabels = nil
+            }
+        }
+    }
+    
+    private func calculateMonthlyBalanceData(accountId: Int) async {
+        let calendar = Calendar.current
+        let endDate = Date()
+        guard let startDate = calendar.date(byAdding: .month, value: -23, to: endDate) else { return }
+        
+        do {
+            async let incomeTransactions = transactionsService.getTransactions(
+                from: startDate,
+                to: endDate,
+                direction: .income
+            )
+            
+            async let expenseTransactions = transactionsService.getTransactions(
+                from: startDate,
+                to: endDate,
+                direction: .outcome
+            )
+            
+            let (incomes, expenses) = try await (incomeTransactions, expenseTransactions)
+            let allTransactions = incomes + expenses
+            
+            let accountTransactions = allTransactions.filter { $0.accountId == accountId }
+            
+            let groupedByMonth = Dictionary(grouping: accountTransactions) { transaction -> Date in
+                let components = calendar.dateComponents([.year, .month], from: transaction.transactionDate)
+                return calendar.date(from: components) ?? calendar.startOfDay(for: transaction.transactionDate)
+            }
+            
+            let monthlyChanges: [BalanceChartDataPoint] = (0..<24).compactMap { monthOffset in
+                guard let monthDate = calendar.date(byAdding: .month, value: -monthOffset, to: endDate) else { return nil }
+                let components = calendar.dateComponents([.year, .month], from: monthDate)
+                guard let startOfMonth = calendar.date(from: components) else { return nil }
+                
+                let transactionsForMonth = groupedByMonth[startOfMonth] ?? []
+                
+                let monthlyTotal = transactionsForMonth.reduce(Decimal.zero) { partialResult, transaction in
+                    return partialResult + transaction.amount
+                }
+                
+                return BalanceChartDataPoint(date: startOfMonth, amount: monthlyTotal)
+            }
+            
+            await MainActor.run {
+                self.chartData = monthlyChanges.reversed()
+                
+                if let firstDate = self.chartData.first?.date,
+                   let midDate = calendar.date(byAdding: .month, value: 12, to: firstDate) {
+                    self.chartDateLabels = (start: firstDate, mid: midDate, end: endDate)
+                }
+            }
+            
+        } catch {
+            await MainActor.run {
+                self.chartData = []
+                self.chartDateLabels = nil
+            }
         }
     }
     
@@ -98,6 +255,7 @@ final class BankAccountViewModel {
                     mode = .view
                     balanceText = Self.displayFormatter.string(for: updated.balance) ?? ""
                 }
+                await updateChartData()
             } catch {
                 await MainActor.run {
                     state = .failed(ErrorMapper.wrap(error))

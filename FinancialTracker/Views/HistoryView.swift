@@ -132,6 +132,7 @@ struct HistoryView: View {
                 .background(Color.accentColor.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .labelsHidden()
+                .environment(\.locale, Locale(identifier: "ru_RU"))
             }
             
             HStack {
@@ -146,6 +147,7 @@ struct HistoryView: View {
                 .background(Color.accentColor.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .labelsHidden()
+                .environment(\.locale, Locale(identifier: "ru_RU"))
             }
             
             HStack {

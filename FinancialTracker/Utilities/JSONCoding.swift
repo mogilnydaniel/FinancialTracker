@@ -3,7 +3,12 @@ import Foundation
 enum JSONCoding {
     static let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        encoder.dateEncodingStrategy = .custom { date, encoder in
+            var container = encoder.singleValueContainer()
+            try container.encode(formatter.string(from: date))
+        }
         return encoder
     }()
     

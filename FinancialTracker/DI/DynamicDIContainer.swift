@@ -22,19 +22,12 @@ final class DynamicDIContainer: ObservableObject {
             migrationService: dataMigrationService
         )
         
-        setupStorageTypeObservation()
     }
     
     private func updateContainer(for storageType: StorageType) {
-        #if DEBUG
-        print("Switching to \(storageType.displayName) storage mode")
-        #endif
         
         currentContainer = Self.createContainer(for: storageType)
         
-        #if DEBUG
-        print("Successfully switched to \(storageType.displayName) mode")
-        #endif
     }
     
     private static func createContainer(for storageType: StorageType) -> DIContainer {
@@ -49,9 +42,6 @@ final class DynamicDIContainer: ObservableObject {
     }
     
     private static func createHybridContainer(storageType: StorageType, networkClient: NetworkClient) -> DIContainer {
-        #if DEBUG
-        print("Creating Hybrid container with \(storageType.displayName)")
-        #endif
 
         let (transactionsPersistence, categoriesPersistence, bankAccountsPersistence, backupPersistence) = createPersistenceLayers(for: storageType)
 
@@ -81,9 +71,6 @@ final class DynamicDIContainer: ObservableObject {
             syncService: backupSyncService
         )
         
-        #if DEBUG
-        print("Created all Hybrid services for \(storageType.displayName)")
-        #endif
         
         return DIContainer(
             categoriesService: categoriesService,
@@ -109,10 +96,6 @@ final class DynamicDIContainer: ObservableObject {
                     try manager.createBackupPersistence()
                 )
             } catch {
-                #if DEBUG
-                print("Failed to create SwiftData persistence: \(error)")
-                print("Falling back to CoreData")
-                #endif
                 let manager = CoreDataManager.shared
                 return (
                     manager.createTransactionsPersistence(),

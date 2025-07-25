@@ -17,6 +17,7 @@ struct FinancialTrackerApp: App {
                 .background(ShakeDetector())
                 .environment(\.di, dynamicDI.currentContainer)
                 .environmentObject(dynamicDI)
+                .environment(\.locale, Locale(identifier: "ru_RU"))
         }
     }
     

@@ -1,9 +1,15 @@
 import SwiftUI
+import Charts
 
 struct BankAccountView: View {
     @State private var viewModel: BankAccountViewModel?
     @FocusState private var balanceFocused: Bool
     @State private var showCurrencyDialog = false
+    
+    @State private var dragLocation: CGPoint? = nil
+    @State private var showDetailPopup: Bool = false
+    @State private var longPressActivated: Bool = false
+    private let chartHorizontalPadding: CGFloat = 10
     
     @Environment(\.di) private var di
     
@@ -11,6 +17,18 @@ struct BankAccountView: View {
         static let spoilerBlur: CGFloat = 6
         static let animationDuration = 0.25
     }
+    
+    private let xAxisDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd.MM"
+        return formatter
+    }()
+    
+    private let xAxisMonthFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM.yyyy"
+        return formatter
+    }()
     
     var body: some View {
         Group {
@@ -83,6 +101,16 @@ struct BankAccountView: View {
                 balanceFocused = false
             }
         }
+        .alert("Баланс на дату", isPresented: $showDetailPopup) {
+            Button("OK") {
+                longPressActivated = false
+                showDetailPopup = false
+            }
+        } message: {
+            if let selectedPoint = viewModel?.selectedDataPoint {
+                Text("\(selectedPoint.date, style: .date)\n\(selectedPoint.amount.rubleFormatted)")
+            }
+        }
     }
     
     @ViewBuilder
@@ -102,6 +130,40 @@ struct BankAccountView: View {
             }
                 .listRowBackground(currencyBG)
                 .animation(.easeInOut(duration: 0.3), value: viewModel.mode)
+            
+            if viewModel.mode == .view && !viewModel.chartData.isEmpty {
+                Section {
+                    VStack(spacing: 20) {
+                        HStack {
+                            Text("История баланса")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            Spacer()
+                        }
+                        
+                        Picker("Период", selection: Binding(
+                            get: { viewModel.selectedPeriod },
+                            set: { newValue in
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    viewModel.selectedPeriod = newValue
+                                }
+                            }
+                        )) {
+                            ForEach(ChartTimePeriod.allCases) { period in
+                                Text(period.rawValue).tag(period)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        
+                        balanceChart(viewModel: viewModel)
+                    }
+                    .padding(.vertical, 12)
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .animation(.easeInOut(duration: 0.3), value: viewModel.mode)
+            }
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
@@ -113,6 +175,74 @@ struct BankAccountView: View {
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .scrollTargetBehavior(.viewAligned)
+    }
+    
+    @ViewBuilder
+    private func balanceChart(viewModel: BankAccountViewModel) -> some View {
+        let labels = viewModel.chartDateLabels
+        
+        Chart(viewModel.chartData) { dataPoint in
+            RuleMark(
+                x: .value("Дата", dataPoint.date),
+                yStart: .value("Начало", 0),
+                yEnd: .value("Конец", dataPoint.amount < 0 ? -Double(truncating: dataPoint.amount as NSDecimalNumber) : Double(truncating: dataPoint.amount as NSDecimalNumber))
+            )
+            .foregroundStyle(by: .value("Тип", dataPoint.type.rawValue))
+            .lineStyle(StrokeStyle(lineWidth: viewModel.selectedPeriod == .days ? 8 : 4, lineCap: .round))
+        }
+        .chartForegroundStyleScale([
+            BalanceChartDataPoint.BalanceChangeType.income.rawValue: Color.green,
+            BalanceChartDataPoint.BalanceChangeType.expense.rawValue: Color.orange
+        ])
+        .chartXAxis {
+            if let labels = labels {
+                AxisMarks(preset: .aligned, values: [labels.start, labels.mid, labels.end]) { value in
+                    if let date = value.as(Date.self) {
+                        let formatter = viewModel.selectedPeriod == .days ? xAxisDateFormatter : xAxisMonthFormatter
+                        AxisValueLabel {
+                            Text(date, formatter: formatter)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0))
+                        AxisTick(stroke: StrokeStyle(lineWidth: 0))
+                    }
+                }
+            }
+        }
+        .chartYAxis(.hidden)
+        .chartYScale(domain: .automatic(includesZero: true))
+        .chartLegend(.hidden)
+        .chartPlotStyle { plotArea in
+            plotArea
+                .background(Color.clear)
+        }
+        .frame(height: 180)
+        .padding(.horizontal, chartHorizontalPadding)
+        .padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+        )
+        .chartOverlay { chartProxy in
+            BalanceChartInteractionOverlay(
+                proxy: chartProxy,
+                chartData: Binding(
+                    get: { viewModel.chartData },
+                    set: { _ in }
+                ),
+                selectedDataPoint: Binding(
+                    get: { viewModel.selectedDataPoint },
+                    set: { viewModel.selectedDataPoint = $0 }
+                ),
+                dragLocation: $dragLocation,
+                showDetailPopup: $showDetailPopup,
+                longPressActivated: $longPressActivated,
+                chartHorizontalPadding: chartHorizontalPadding,
+                clearChartSelection: viewModel.clearChartSelection
+            )
+        }
     }
     
     private func balanceRow(viewModel: BankAccountViewModel) -> some View {
@@ -193,6 +323,7 @@ struct BankAccountView: View {
         }
     }
 }
+
 
 #Preview {
     NavigationStack {

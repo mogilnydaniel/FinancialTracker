@@ -63,7 +63,7 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
             let categoryId: Int
             let amount: String
             let transactionDate: String
-            let comment: String?
+            let comment: String
             
             func encode(to encoder: Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
@@ -83,6 +83,7 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
         
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
+        numberFormatter.usesGroupingSeparator = false
         numberFormatter.minimumFractionDigits = 2
         numberFormatter.maximumFractionDigits = 2
         numberFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -93,7 +94,7 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
             categoryId: request.categoryId,
             amount: amountString,
             transactionDate: formatter.string(from: request.transactionDate),
-            comment: request.comment
+            comment: request.comment ?? ""
         )
 
         let endpoint = Endpoint(path: "/transactions", method: .post)
@@ -110,7 +111,7 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
             let categoryId: Int
             let amount: String
             let transactionDate: String
-            let comment: String?
+            let comment: String
             
             func encode(to encoder: Encoder) throws {
                 var container = encoder.container(keyedBy: CodingKeys.self)
@@ -130,6 +131,7 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
         
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
+        numberFormatter.usesGroupingSeparator = false
         numberFormatter.minimumFractionDigits = 2
         numberFormatter.maximumFractionDigits = 2
         numberFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -140,7 +142,7 @@ struct NetworkTransactionsService: TransactionsServiceProtocol {
             categoryId: request.categoryId,
             amount: amountString,
             transactionDate: formatter.string(from: request.transactionDate),
-            comment: request.comment 
+            comment: request.comment ?? "" 
         )
         
         let endpoint = Endpoint(path: "/transactions/\(id)", method: .put)

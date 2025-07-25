@@ -8,6 +8,9 @@ struct BankAccountViewModelFactory: BankAccountViewModelFactoryProtocol {
     unowned let di: DIContainer
 
     func makeBankAccountViewModel() -> BankAccountViewModel {
-        BankAccountViewModel(service: di.bankAccountsService)
+        BankAccountViewModel(
+            service: di.bankAccountsService,
+            transactionsService: di.transactionsService
+        )
     }
 } 
